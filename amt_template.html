@@ -1,0 +1,260 @@
+<!-- Bootstrap CSS と jQuery を最初に読み込む（AMTテンプレートと同じ） -->
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" integrity="sha384-IS73LIqjtYesmURkDE9MXKbXqYA8rvKEp/ghicjem7Vc3mGRdQRptJSz60tvrB6+" rel="stylesheet" />
+
+<style type="text/css">
+    #collapseTrigger{
+        color:#fff;
+        display: block;
+        text-decoration: none;
+    }
+    #submitButton{
+        white-space: normal;
+    }
+    .image{
+        margin-bottom: 15px; 
+    }
+    /* CSS for breaking long words/urls */
+    .dont-break-out {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        -ms-word-break: break-all;
+        word-break: break-all;
+        word-break: break-word;
+        -ms-hyphens: auto;
+        -moz-hyphens: auto;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+    }
+    /* Original layout styles */
+    .amt-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .instructions {
+        background: #f0f0f0;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .instructions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 25px;
+    }
+    .instructions-column h3 {
+        color: #2c3e50;
+        font-size: 18px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 8px;
+    }
+    .instructions-column ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    .instructions-column li {
+        color: #495057;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+    .instructions-workflow h3 {
+        color: #2c3e50;
+        font-size: 18px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 8px;
+    }
+    .instructions-workflow ol {
+        margin: 0;
+        padding-left: 20px;
+    }
+    .instructions-workflow li {
+        color: #495057;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+    .iframe-container {
+        width: 100%;
+        height: 850px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+    }
+    #annotation-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+
+<meta content="width=device-width,initial-scale=1" name="viewport" />
+
+<section class="container" id="VideoSummarization">
+    <div class="amt-container">
+        <div class="instructions">
+            <h2>Multi-Video Summarization Task</h2>
+            <p>In this task, you will watch 5 videos about <strong>${city_name}</strong> and select the most representative, impressive, and unique scenes that best summarize the city across the entire video collection.</p>
+            
+            <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ffeaa7;">
+                <strong>⚠️ IMPORTANT:</strong> You MUST click "Save Results" button (located in the interface below) to save your selections. After saving, scroll down and click the "Submit" button to complete the HIT.
+            </div>
+            
+            <div class="instructions-grid">
+                <div class="instructions-column">
+                    <h3>Selection Criterion</h3>
+                    <ul>
+                        <li>Please first watch all videos, then, choose the most attractive, clear, or visually impressive segments from all segments.</li>
+                        <li>If a similar scene appears in other videos, avoid duplication.</li>
+                        <li>If the same content exists in multiple videos, choose only the most attractive, clear, or visually impressive version.</li>
+                        <li>The total length of selected segments across all videos should be between <strong>5% and 15%</strong> of the overall content.</li>
+                        <li>Focus on scenes that are unique and valuable, ideally those only visible in that specific video.</li>
+                        <li>Audio is muted, so please base your judgment only on visuals.</li>
+                        <li>Do not consider temporary on-screen text (subtitles, overlays) as the main reason to judge importance.</li>
+                    </ul>
+                </div>
+                
+                <div class="instructions-column">
+                    <h3>Interface Operations</h3>
+                    <ul>
+                        <li><strong>Video Navigation:</strong> Use video controls to play, pause, and seek through videos.</li>
+                        <li><strong>Segment Selection:</strong> Click on segment tiles to jump to that segment in the video.</li>
+                        <li><strong>Include/Remove:</strong> Click the "Include" button on segment tiles to select them for the summary.</li>
+                        <li><strong>Quick Include:</strong> Use the "Include Current Segment" button to select the segment at current playback position.</li>
+                        <li><strong>Progress Bar:</strong> Click on the progress bar to jump to specific times.</li>
+                        <li><strong>Segment Boundaries:</strong> Visual boundaries on the progress bar show segment divisions.</li>
+                        <li><strong>Statistics:</strong> Monitor your selection progress using the stats at the top.</li>
+                        <li><strong>Save:</strong> Click "Save Results" when finished to submit your selections.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="instructions-workflow">
+                <h3>Workflow</h3>
+                <ol>
+                    <li>Check the name of the tourist city provided as the query.</li>
+                    <li>Watch all videos related to the city.</li>
+                    <li>From each video, select important segments that best express the city's characteristics and appeal.</li>
+                    <li>Check for duplicate content across videos.</li>
+                    <li>If a similar segment has already been selected from another video, choose only the best version and discard the redundant one.</li>
+                    <li>After selecting, double-check that the final summary covers all key aspects of the city without unnecessary repetition or omissions.</li>
+                    <li>Press the "Save Results" button in the interface below.</li>
+                    <li>After seeing "Selection saved!" message, scroll down and click the "Submit" button to complete the HIT.</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="iframe-container">
+            <iframe id="annotation-iframe"></iframe>
+        </div>
+        
+        <!-- Status and submission section -->
+        <div style="background: #f0f0f0; padding: 20px; margin-top: 20px; border-radius: 8px; text-align: center;">
+            <div id="status-message" style="margin-bottom: 15px; font-size: 16px; font-weight: bold;">
+                Please make your selections in the interface above.<br>
+                When finished, scroll down within the interface above and click the 'Save Results' button.
+            </div>
+            <div id="completion-message" style="display: none; margin-top: 15px; color: #4CAF50; font-size: 18px; font-weight: bold;">
+                ✓ Task completed successfully! Please type "DONE" below and click Submit.
+            </div>
+        </div>
+        
+        <!-- Hidden inputs for data -->
+        <input type="hidden" name="results" id="results-input" />
+        <input type="hidden" name="city" value="${city_name}" />
+        <input type="hidden" name="area" value="${area}" />
+        <input type="hidden" name="place" value="${place}" />
+        
+        <!-- Input from Worker (AMTテンプレートと同じ形式) -->
+        <div class="form-group" style="margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 8px;">
+            <label for="confirmation">Provide the confirmation code here:</label>
+            <input class="form-control" id="confirmation" name="confirmation" placeholder="Type DONE after saving your results" required="" type="text" />
+        </div>
+        <!-- End input from Worker -->
+    </div>
+</section>
+
+<!-- External JS references -->
+<script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js" integrity="sha384-s1ITto93iSMDxlp/79qhWHi+LsIi9Gx6yL+cOKDuymvihkfol83TYbLbOw+W/wv4" crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function() {
+        // Configuration
+        const GITHUB_PAGES_URL = 'https://sugitomoo.github.io/MVS_city_concat/';
+        const GITHUB_PAGES_ORIGIN = 'https://sugitomoo.github.io';
+        
+        const cityData = {
+            area: '${area}',
+            place: '${place}',
+            cityName: '${city_name}',
+            videoIds: [
+                '${video1_id}',
+                '${video2_id}',
+                '${video3_id}',
+                '${video4_id}',
+                '${video5_id}'
+            ]
+        };
+        
+        // Initialize iframe
+        const iframe = document.getElementById('annotation-iframe');
+        const params = new URLSearchParams({
+            area: cityData.area,
+            place: cityData.place,
+            city: cityData.cityName,
+            videos: cityData.videoIds.join(','),
+            mode: 'amt'
+        });
+        
+        iframe.src = GITHUB_PAGES_URL + '?' + params.toString();
+        
+        // State management
+        let currentResults = null;
+        let taskCompleted = false;
+        
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            // Only accept messages from GitHub Pages
+            if (event.origin !== GITHUB_PAGES_ORIGIN) return;
+            
+            if (event.data.type === 'results-saved') {
+                currentResults = event.data.results;
+                
+                // Check if percentage is within 5-15% range
+                if (currentResults.percentage >= 5 && currentResults.percentage <= 15) {
+                    // Save to hidden form
+                    document.getElementById('results-input').value = JSON.stringify(currentResults);
+                    
+                    // Update UI
+                    document.getElementById('status-message').innerHTML = 
+                        '<span style="color: #4CAF50;">✓ Selection saved! (' + currentResults.percentage.toFixed(1) + '% selected)</span>';
+                    document.getElementById('completion-message').style.display = 'block';
+                    
+                    taskCompleted = true;
+                    
+                    // Scroll to the form area
+                    document.querySelector('.form-group').scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Focus on confirmation input
+                    document.getElementById('confirmation').focus();
+                    
+                } else {
+                    document.getElementById('status-message').innerHTML =
+                      '<span style="color: #f44336;">Selection must be between 5% and 15%. Current: ' + currentResults.percentage.toFixed(1) + '%</span>';
+                    alert(
+                      'Selection must be between 5% and 15% of total duration.\n\n' +
+                      'Current: ' + currentResults.percentage.toFixed(1) + '%\n' +
+                      (currentResults.percentage < 5
+                        ? 'Please select more segments.'
+                        : 'Please remove some segments.')
+                    );
+                    
+                    taskCompleted = false;
+                }
+            }
+        });
+    });
+</script>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Video Summarization Task</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .amt-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .amt-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .amt-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .city-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .city-info h2 {
+            margin: 0;
+            color: #1976d2;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 800px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        #annotation-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .submit-section {
+            margin-top: 20px;
+            text-align: center;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        
+        .submit-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            disabled: true;
+        }
+        
+        .submit-button:hover:not(:disabled) {
+            background: #45a049;
+        }
+        
+        .submit-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="amt-container">
+        <div class="amt-header">
+            <h1>Multi-Video Summarization Task</h1>
+            <p>Please select the most representative, impressive, and unique scenes from the videos below.</p>
+        </div>
+        
+        <div class="city-info">
+            <h2>City: ${city_name}</h2>
+            <p>Area: ${area} | Place: ${place}</p>
+        </div>
+        
+        <div class="iframe-container">
+            <iframe id="annotation-iframe" src=""></iframe>
+        </div>
+        
+        <div class="submit-section">
+            <form id="mturk-form" method="POST" action="${submit_url}">
+                <input type="hidden" name="assignmentId" value="${assignmentId}">
+                <input type="hidden" id="results-input" name="results" value="">
+                <input type="hidden" id="city-input" name="city" value="${city_name}">
+                <input type="hidden" id="area-input" name="area" value="${area}">
+                <input type="hidden" id="place-input" name="place" value="${place}">
+                <input type="hidden" id="worker-input" name="workerId" value="${workerId}">
+                <input type="hidden" id="hit-input" name="hitId" value="${hitId}">
+                
+                <button type="button" class="submit-button" id="submit-button" disabled>
+                    Submit Results
+                </button>
+                
+                <div id="status-message" class="status-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const GITHUB_PAGES_URL = 'https://sugitomoo.github.io/MVS_city/';
+        const S3_BASE_URL = 'https://multivideosummarization-city.s3.us-east-1.amazonaws.com/';
+        
+        // Get parameters from AMT
+        const urlParams = new URLSearchParams(window.location.search);
+        const assignmentId = urlParams.get('assignmentId') || 'ASSIGNMENT_ID_NOT_AVAILABLE';
+        const workerId = urlParams.get('workerId') || '';
+        const hitId = urlParams.get('hitId') || '';
+        
+        // Get city data from AMT template variables
+        const cityData = {
+            area: '${area}',
+            place: '${place}',
+            cityName: '${city_name}',
+            videoIds: [
+                '${video1_id}',
+                '${video2_id}',
+                '${video3_id}',
+                '${video4_id}',
+                '${video5_id}'
+            ]
+        };
+        
+        // Initialize iframe
+        function initializeAnnotationInterface() {
+            const iframe = document.getElementById('annotation-iframe');
+            
+            // Build URL with parameters
+            const params = new URLSearchParams({
+                area: cityData.area,
+                place: cityData.place,
+                city: cityData.cityName,
+                videos: cityData.videoIds.join(','),
+                mode: 'amt',
+                assignmentId: assignmentId
+            });
+            
+            iframe.src = `${GITHUB_PAGES_URL}?${params.toString()}`;
+            
+            // Listen for messages from iframe
+            window.addEventListener('message', handleIframeMessage);
+        }
+        
+        // Handle messages from iframe
+        function handleIframeMessage(event) {
+            // Verify origin
+            if (!event.origin.includes('github.io')) return;
+            
+            const data = event.data;
+            
+            if (data.type === 'results-saved') {
+                // Enable submit button
+                document.getElementById('submit-button').disabled = false;
+                document.getElementById('results-input').value = JSON.stringify(data.results);
+                showStatus('Results saved! You can now submit.', 'success');
+            } else if (data.type === 'error') {
+                showStatus('Error: ' + data.message, 'error');
+            }
+        }
+        
+        // Show status message
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message ' + type;
+            statusEl.style.display = 'block';
+        }
+        
+        // Submit handler
+        document.getElementById('submit-button').addEventListener('click', function() {
+            if (assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE') {
+                alert('Please accept the HIT before submitting.');
+                return;
+            }
+            
+            const results = document.getElementById('results-input').value;
+            if (!results) {
+                alert('Please complete the annotation task before submitting.');
+                return;
+            }
+            
+            // Submit form
+            document.getElementById('mturk-form').submit();
+        });
+        
+        // Initialize on load
+        if (assignmentId !== 'ASSIGNMENT_ID_NOT_AVAILABLE') {
+            initializeAnnotationInterface();
+        } else {
+            showStatus('Please accept the HIT to begin the task.', 'error');
+        }
+    </script>
+</body>
+</html>
