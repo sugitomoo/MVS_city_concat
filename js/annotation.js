@@ -78,10 +78,15 @@ function updatePreviewButton() {
 
 // Preview functionality
 function startPreview() {
-    // Build preview queue from selected segments
+    console.log('Starting preview...'); // デバッグ用
+    
+    // Build preview queue from selected segments in order
     previewState.queue = [];
     
-    segmentData.forEach(segment => {
+    // Sort segments by segment number to play in order
+    const sortedSegments = [...segmentData].sort((a, b) => a.segmentNumber - b.segmentNumber);
+    
+    sortedSegments.forEach(segment => {
         if (selections[segment.id]) {
             previewState.queue.push({
                 segmentId: segment.id,
@@ -90,7 +95,12 @@ function startPreview() {
         }
     });
     
-    if (previewState.queue.length === 0) return;
+    console.log('Preview queue:', previewState.queue); // デバッグ用
+    
+    if (previewState.queue.length === 0) {
+        console.log('No segments selected for preview');
+        return;
+    }
     
     previewState.currentIndex = 0;
     previewState.isPlaying = true;
@@ -105,7 +115,10 @@ function startPreview() {
 }
 
 function playNextSegment() {
+    console.log('playNextSegment called, index:', previewState.currentIndex); // デバッグ用
+    
     if (!previewState.isPlaying || previewState.currentIndex >= previewState.queue.length) {
+        console.log('Preview finished or stopped');
         stopPreview();
         return;
     }
@@ -125,6 +138,7 @@ function playNextSegment() {
         `Segment ${current.segment.segmentNumber + 1} (${previewState.currentIndex + 1}/${previewState.queue.length})`;
     
     // Play segment
+    console.log(`Playing from ${current.segment.start} to ${current.segment.end}`);
     player.currentTime = current.segment.start;
     player.play();
     
@@ -132,6 +146,7 @@ function playNextSegment() {
     if (previewState.interval) clearInterval(previewState.interval);
     previewState.interval = setInterval(() => {
         if (player.currentTime >= current.segment.end || player.paused) {
+            console.log('Segment ended at:', player.currentTime);
             clearInterval(previewState.interval);
             previewState.currentIndex++;
             setTimeout(() => playNextSegment(), 500); // Small delay between segments
@@ -140,6 +155,7 @@ function playNextSegment() {
 }
 
 function stopPreview() {
+    console.log('Stopping preview'); // デバッグ用
     previewState.isPlaying = false;
     
     // Clear interval
@@ -162,11 +178,12 @@ function stopPreview() {
 }
 
 function clearPreviewHighlights() {
-    document.querySelectorAll('.segment-tile.preview-playing').forEach(tile => {
-        tile.classList.remove('preview-playing');
-    });
-    document.querySelectorAll('.segment-block.preview-playing').forEach(block => {
-        block.classList.remove('preview-playing');
+    // Clear all preview highlights
+    segmentData.forEach(segment => {
+        const tile = document.getElementById(`tile-${segment.id}`);
+        const progressBlock = document.getElementById(`progress-block-${segment.id}`);
+        if (tile) tile.classList.remove('preview-playing');
+        if (progressBlock) progressBlock.classList.remove('preview-playing');
     });
 }
 
@@ -191,6 +208,22 @@ function processSegmentsData(segmentsJson) {
     createSegmentTiles();
     updateProgress();
     updatePreviewButton();
+}
+
+function previewSegment(segmentNumber) {
+    const segment = segmentData.find(s => s.segmentNumber === segmentNumber);
+    if (!segment) return;
+    
+    const player = document.getElementById('concat-video-player');
+    player.currentTime = segment.start;
+    player.play();
+    
+    const checkTime = setInterval(() => {
+        if (player.currentTime >= segment.end) {
+            player.pause();
+            clearInterval(checkTime);
+        }
+    }, 100);
 }
 
 function createSegmentTiles() {
@@ -222,8 +255,17 @@ function initializeVideo() {
     const player = document.getElementById('concat-video-player');
     
     player.addEventListener('loadedmetadata', function() {
+        console.log('Video metadata loaded, duration:', player.duration);
         document.getElementById('total-time').textContent = formatTime(player.duration);
         createProgressBarSegments();
+    });
+    
+    player.addEventListener('canplay', function() {
+        console.log('Video can play');
+    });
+    
+    player.addEventListener('error', function(e) {
+        console.error('Video error:', e);
     });
     
     player.addEventListener('timeupdate', function() {
@@ -246,7 +288,7 @@ function createProgressBarSegments() {
         block.style.width = `${(segment.duration / videoDuration) * 100}%`;
         block.onclick = (e) => {
             e.stopPropagation();
-            jumpToSegment(segment.segmentNumber);
+            previewSegment(segment.segmentNumber);
         };
         
         block.innerHTML = `<span class="segment-number-label">${segment.segmentNumber + 1}</span>`;
@@ -261,7 +303,9 @@ function jumpToSegment(segmentNumber) {
     
     const player = document.getElementById('concat-video-player');
     player.currentTime = segment.start;
-    player.play();
+    player.play().catch(err => {
+        console.error('Error playing video:', err);
+    });
 }
 
 function toggleSegment(segmentId) {
