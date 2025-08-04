@@ -316,30 +316,6 @@ function initializeVideo() {
     });
 }
 
-function createProgressBarSegments() {
-    const container = document.getElementById('segment-blocks');
-    container.innerHTML = '';
-    
-    const player = document.getElementById('concat-video-player');
-    const videoDuration = player.duration;
-    
-    segmentData.forEach(segment => {
-        const block = document.createElement('div');
-        block.className = 'segment-block unselected';
-        block.id = `progress-block-${segment.id}`;
-        block.style.left = `${(segment.start / videoDuration) * 100}%`;
-        block.style.width = `${(segment.duration / videoDuration) * 100}%`;
-        block.onclick = (e) => {
-            e.stopPropagation();
-            previewSegment(segment.segmentNumber);
-        };
-        
-        block.innerHTML = `<span class="segment-number-label">${segment.segmentNumber + 1}</span>`;
-        
-        container.appendChild(block);
-    });
-}
-
 function jumpToSegment(segmentNumber) {
     const segment = segmentData.find(s => s.segmentNumber === segmentNumber);
     if (!segment) return;
@@ -356,17 +332,16 @@ function toggleSegment(segmentId) {
     if (!segment) return;
     
     const tile = document.getElementById(`tile-${segmentId}`);
-    const progressBlock = document.getElementById(`progress-block-${segmentId}`);
     const button = tile.querySelector('.segment-include-btn');
     
     if (selections[segmentId]) {
+        // Remove selection
         delete selections[segmentId];
         tile.classList.remove('selected');
-        progressBlock.classList.remove('selected');
-        progressBlock.classList.add('unselected');
         button.textContent = 'Include';
         selectedDuration -= segment.duration;
     } else {
+        // Add selection
         selections[segmentId] = {
             segmentNumber: segment.segmentNumber,
             originalVideo: segment.originalVideo,
@@ -374,13 +349,12 @@ function toggleSegment(segmentId) {
             duration: segment.duration
         };
         tile.classList.add('selected');
-        progressBlock.classList.add('selected');
-        progressBlock.classList.remove('unselected');
         button.textContent = 'Remove';
         selectedDuration += segment.duration;
     }
     
     updateProgress();
+    updatePreviewButton();
 }
 
 function updatePlayhead() {
