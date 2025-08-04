@@ -88,6 +88,7 @@
         height: 100%;
         border: none;
     }
+
 </style>
 
 <meta content="width=device-width,initial-scale=1" name="viewport" />
@@ -95,7 +96,7 @@
 <section class="container" id="VideoSummarization">
     <div class="amt-container">
         <div class="instructions">
-            <h2>Multi-Video Summarization Task - Concatenated Video</h2>
+            <h2>Multi-Video Summarization Task</h2>
             <p>In this task, you will watch a single video that contains 5 concatenated videos about <strong>${city_name}</strong>. Please select the most representative, impressive, and unique scenes that best summarize the city from this combined video.</p>
             
             <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ffeaa7;">
@@ -123,8 +124,8 @@
                         <li><strong>Segment Selection:</strong> Click on segment tiles below the video to jump to that segment.</li>
                         <li><strong>Include/Remove:</strong> Click the "Include" button on segment tiles to select them for the summary.</li>
                         <li><strong>Quick Include:</strong> Use the "Include Current Segment" button to select the segment at current playback position.</li>
-                        <li><strong>Progress Bar:</strong> Click on the progress bar to jump to specific times. Segment boundaries are visually marked.</li>
-                        <li><strong>Preview:</strong> Use the "Preview Selected Segments" button to watch all your selected segments in sequence.</li>
+                        <li><strong>Currently Playing Indicator:</strong> The segment currently being played is highlighted with a blue border and pulsing animation, making it easy to identify which segment you're watching.</li>
+                        <li><strong>Preview Function:</strong> After selecting segments, use the "Preview Selected Segments" button to watch only your selected segments in sequence. This helps you review your choices before saving.</li>
                         <li><strong>Statistics:</strong> Monitor your selection progress using the stats at the top (aim for 5-15%).</li>
                         <li><strong>Save:</strong> Click "Save Results" when finished to submit your selections.</li>
                     </ul>
@@ -136,10 +137,10 @@
                 <ol>
                     <li>Check the name of the tourist city provided as the query (<strong>${city_name}</strong>).</li>
                     <li>Watch the entire concatenated video to get an overview of all available content.</li>
-                    <li>Select segments that best express the city's characteristics and appeal.</li>
+                    <li>Select segments that best express the city's characteristics and appeal. The currently playing segment will be highlighted in blue to help you track your position.</li>
                     <li>Ensure no duplicate content is selected - if similar scenes appear, choose only the best one.</li>
                     <li>Monitor the percentage indicator to ensure your selection is between 5% and 15%.</li>
-                    <li>Use the "Preview Selected Segments" button to review your selections.</li>
+                    <li>Use the "Preview Selected Segments" button to review your selections. During preview, selected segments will play in order with a red highlight.</li>
                     <li>Press the "Save Results" button in the interface below.</li>
                     <li>After seeing "Selection saved!" message, scroll down and click the "Submit" button to complete the HIT.</li>
                 </ol>
