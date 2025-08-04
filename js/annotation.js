@@ -8,6 +8,7 @@ let selections = {};
 let totalDuration = 0;
 let selectedDuration = 0;
 let cityInfo = {};
+let currentPlayingSegment = null;
 
 // Preview state
 let previewState = {
@@ -171,13 +172,61 @@ function stopPreview() {
     document.getElementById('preview-btn').classList.remove('hidden');
     document.getElementById('stop-btn').classList.add('hidden');
     document.getElementById('preview-status').classList.add('hidden');
+    
+    // Re-highlight current segment if video is still playing
+    highlightCurrentSegment();
+}
+
+function highlightCurrentSegment() {
+    const player = document.getElementById('concat-video-player');
+    const currentTime = player.currentTime;
+    
+    // Find the segment at current time
+    const activeSegment = segmentData.find(s => 
+        currentTime >= s.start && currentTime <= s.end
+    );
+    
+    // If we're in preview mode, don't interfere with preview highlighting
+    if (previewState.isPlaying) return;
+    
+    // If the active segment hasn't changed, do nothing
+    if (activeSegment && currentPlayingSegment && activeSegment.id === currentPlayingSegment.id) {
+        return;
+    }
+    
+    // Clear previous highlight
+    if (currentPlayingSegment) {
+        const prevTile = document.getElementById(`tile-${currentPlayingSegment.id}`);
+        if (prevTile) {
+            prevTile.classList.remove('currently-playing');
+        }
+    }
+    
+    // Highlight new segment
+    if (activeSegment) {
+        const tile = document.getElementById(`tile-${activeSegment.id}`);
+        if (tile) {
+            tile.classList.add('currently-playing');
+            // Scroll tile into view if needed
+            tile.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        currentPlayingSegment = activeSegment;
+    } else {
+        currentPlayingSegment = null;
+    }
 }
 
 function clearPreviewHighlights() {
     // Clear all preview highlights
     segmentData.forEach(segment => {
         const tile = document.getElementById(`tile-${segment.id}`);
-        if (tile) tile.classList.remove('preview-playing');
+        if (tile) {
+            tile.classList.remove('preview-playing');
+            // Re-add currently-playing class if this is the current segment
+            if (!previewState.isPlaying && currentPlayingSegment && currentPlayingSegment.id === segment.id) {
+                tile.classList.add('currently-playing');
+            }
+        }
     });
 }
 
@@ -263,6 +312,7 @@ function initializeVideo() {
     
     player.addEventListener('timeupdate', function() {
         updatePlayhead();
+        highlightCurrentSegment();
     });
 }
 
