@@ -8,7 +8,14 @@ let selections = {};
 let totalDuration = 0;
 let selectedDuration = 0;
 let cityInfo = {};
-let videoColors = {};
+
+// Preview state
+let previewState = {
+    isPlaying: false,
+    currentIndex: 0,
+    queue: [],
+    interval: null
+};
 
 // Get URL parameters
 function getURLParams() {
@@ -64,18 +71,107 @@ async function loadSegmentsData() {
     }
 }
 
-function processSegmentsData(segmentsJson) {
-    const allSegments = segmentsJson[cityInfo.place] || [];
+function updatePreviewButton() {
+    const previewButton = document.getElementById('preview-btn');
+    previewButton.disabled = Object.keys(selections).length === 0;
+}
+
+// Preview functionality
+function startPreview() {
+    // Build preview queue from selected segments
+    previewState.queue = [];
     
-    // Create color mapping for original videos
-    const uniqueVideos = [...new Set(allSegments.map(s => s.original_video))];
-    const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
-    uniqueVideos.forEach((video, index) => {
-        videoColors[video] = colors[index % colors.length];
+    segmentData.forEach(segment => {
+        if (selections[segment.id]) {
+            previewState.queue.push({
+                segmentId: segment.id,
+                segment: segment
+            });
+        }
     });
     
-    // Create video source indicators
-    createVideoSourceIndicators(uniqueVideos);
+    if (previewState.queue.length === 0) return;
+    
+    previewState.currentIndex = 0;
+    previewState.isPlaying = true;
+    
+    // Update UI
+    document.getElementById('preview-btn').classList.add('hidden');
+    document.getElementById('stop-btn').classList.remove('hidden');
+    document.getElementById('preview-status').classList.remove('hidden');
+    
+    // Start playing
+    playNextSegment();
+}
+
+function playNextSegment() {
+    if (!previewState.isPlaying || previewState.currentIndex >= previewState.queue.length) {
+        stopPreview();
+        return;
+    }
+    
+    const current = previewState.queue[previewState.currentIndex];
+    const player = document.getElementById('concat-video-player');
+    
+    // Highlight current segment
+    clearPreviewHighlights();
+    const tile = document.getElementById(`tile-${current.segmentId}`);
+    const progressBlock = document.getElementById(`progress-block-${current.segmentId}`);
+    if (tile) tile.classList.add('preview-playing');
+    if (progressBlock) progressBlock.classList.add('preview-playing');
+    
+    // Update status
+    document.getElementById('preview-info').textContent = 
+        `Segment ${current.segment.segmentNumber + 1} (${previewState.currentIndex + 1}/${previewState.queue.length})`;
+    
+    // Play segment
+    player.currentTime = current.segment.start;
+    player.play();
+    
+    // Monitor playback
+    if (previewState.interval) clearInterval(previewState.interval);
+    previewState.interval = setInterval(() => {
+        if (player.currentTime >= current.segment.end || player.paused) {
+            clearInterval(previewState.interval);
+            previewState.currentIndex++;
+            setTimeout(() => playNextSegment(), 500); // Small delay between segments
+        }
+    }, 100);
+}
+
+function stopPreview() {
+    previewState.isPlaying = false;
+    
+    // Clear interval
+    if (previewState.interval) {
+        clearInterval(previewState.interval);
+        previewState.interval = null;
+    }
+    
+    // Pause video
+    const player = document.getElementById('concat-video-player');
+    if (player) player.pause();
+    
+    // Clear highlights
+    clearPreviewHighlights();
+    
+    // Update UI
+    document.getElementById('preview-btn').classList.remove('hidden');
+    document.getElementById('stop-btn').classList.add('hidden');
+    document.getElementById('preview-status').classList.add('hidden');
+}
+
+function clearPreviewHighlights() {
+    document.querySelectorAll('.segment-tile.preview-playing').forEach(tile => {
+        tile.classList.remove('preview-playing');
+    });
+    document.querySelectorAll('.segment-block.preview-playing').forEach(block => {
+        block.classList.remove('preview-playing');
+    });
+}
+
+function processSegmentsData(segmentsJson) {
+    const allSegments = segmentsJson[cityInfo.place] || [];
     
     // Process segments
     segmentData = allSegments.map(segment => ({
@@ -94,21 +190,7 @@ function processSegmentsData(segmentsJson) {
     document.getElementById('total-segments').textContent = segmentData.length;
     createSegmentTiles();
     updateProgress();
-}
-
-function createVideoSourceIndicators(videos) {
-    const container = document.getElementById('video-sources');
-    container.innerHTML = '';
-    
-    videos.forEach((video, index) => {
-        const indicator = document.createElement('div');
-        indicator.className = 'source-indicator';
-        indicator.innerHTML = `
-            <div class="source-color" style="background: ${videoColors[video]}"></div>
-            <span>Video ${index + 1}: ${video}</span>
-        `;
-        container.appendChild(indicator);
-    });
+    updatePreviewButton();
 }
 
 function createSegmentTiles() {
@@ -123,9 +205,6 @@ function createSegmentTiles() {
         
         tile.innerHTML = `
             <div class="segment-number">${segment.segmentNumber + 1}</div>
-            <div class="segment-origin" style="color: ${videoColors[segment.originalVideo]}">
-                ${segment.originalVideo}
-            </div>
             <div class="segment-timerange">
                 ${formatTime(segment.start)} - ${formatTime(segment.end)}
             </div>
@@ -165,16 +244,12 @@ function createProgressBarSegments() {
         block.id = `progress-block-${segment.id}`;
         block.style.left = `${(segment.start / videoDuration) * 100}%`;
         block.style.width = `${(segment.duration / videoDuration) * 100}%`;
-        block.style.borderColor = videoColors[segment.originalVideo];
         block.onclick = (e) => {
             e.stopPropagation();
             jumpToSegment(segment.segmentNumber);
         };
         
-        block.innerHTML = `
-            <span>${segment.segmentNumber + 1}</span>
-            <span class="segment-video-label">${segment.originalVideo.slice(-4)}</span>
-        `;
+        block.innerHTML = `<span class="segment-number-label">${segment.segmentNumber + 1}</span>`;
         
         container.appendChild(block);
     });
@@ -392,6 +467,8 @@ window.toggleSegment = toggleSegment;
 window.includeCurrentSegment = includeCurrentSegment;
 window.seekVideo = seekVideo;
 window.saveResults = saveResults;
+window.startPreview = startPreview;
+window.stopPreview = stopPreview;
 
 // AMT message handling
 if (window.location.search.includes('mode=amt')) {

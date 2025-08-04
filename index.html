@@ -9,7 +9,7 @@
     <div class="main-container">
         <!-- Instructions Section -->
         <div class="instructions-section">
-            <h2>Multi-Video Summarization - Concatenated View</h2>
+            <h2>Multi-Video Summarization</h2>
             <p>This video contains 5 concatenated videos about the location. Select the most representative, impressive, and unique segments.</p>
         </div>
 
@@ -41,11 +41,6 @@
                 <!-- Source will be set dynamically -->
             </video>
             
-            <!-- Video Source Indicators -->
-            <div class="video-sources" id="video-sources">
-                <!-- Will be populated dynamically -->
-            </div>
-            
             <div class="video-progress-container" id="progress-container" onclick="seekVideo(event)">
                 <div class="video-progress-bar" id="progress-bar"></div>
                 <div id="segment-blocks"></div>
@@ -56,6 +51,20 @@
                 <span id="current-time">0:00</span>
                 <button class="include-current-btn" onclick="includeCurrentSegment()">Include Current Segment</button>
                 <span id="total-time">0:00</span>
+            </div>
+            
+            <!-- Preview Controls -->
+            <div class="video-controls">
+                <button class="video-preview-button" id="preview-btn" onclick="startPreview()" disabled>
+                    <span>▶</span> Preview Selected Segments
+                </button>
+                <button class="video-stop-button hidden" id="stop-btn" onclick="stopPreview()">
+                    <span>■</span> Stop Preview
+                </button>
+                <div class="video-preview-status hidden" id="preview-status">
+                    <span class="video-preview-label">Playing:</span>
+                    <span class="video-preview-info" id="preview-info"></span>
+                </div>
             </div>
         </div>
 

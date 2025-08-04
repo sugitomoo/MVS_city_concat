@@ -162,15 +162,38 @@ body {
     color: white;
 }
 
+.segment-block.preview-playing {
+    background: rgba(255, 193, 7, 0.9) !important;
+    color: #000 !important;
+    border: 3px solid #ff6b6b !important;
+    border-radius: 4px;
+    animation: pulse 0.8s infinite;
+    z-index: 5;
+}
+
+@keyframes pulse {
+    0% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+    100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 .segment-block:hover {
     opacity: 0.8;
     border-color: #212529;
 }
 
-.segment-video-label {
-    font-size: 9px;
-    opacity: 0.8;
-    margin-top: 2px;
+.segment-number-label {
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .playhead {
@@ -211,9 +234,10 @@ body {
     transform: scale(0.95);
 }
 
-/* Video Source Indicators */
-.video-sources {
+/* Video Controls Section */
+.video-controls {
     display: flex;
+    align-items: center;
     gap: 15px;
     margin: 0 20px 15px;
     padding: 15px;
@@ -221,21 +245,62 @@ body {
     border-radius: 8px;
 }
 
-.source-indicator {
+.video-preview-button, .video-stop-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.video-preview-button {
+    background: #007bff;
+    color: white;
+}
+
+.video-preview-button:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+}
+
+.video-preview-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.video-stop-button {
+    background: #dc3545;
+    color: white;
+}
+
+.video-stop-button:hover {
+    background: #c82333;
+}
+
+.video-preview-status {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    background: white;
+    background: #e3f2fd;
     border-radius: 6px;
     font-size: 13px;
-    border: 2px solid #dee2e6;
 }
 
-.source-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
+.video-preview-label {
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.video-preview-info {
+    color: #333;
 }
 
 /* Segments Grid */
@@ -272,6 +337,48 @@ body {
     border-color: #764ba2;
 }
 
+.segment-tile.preview-playing {
+    border: 4px solid #ff6b6b !important;
+    background: rgba(255, 193, 7, 0.2) !important;
+    animation: tileGlow 0.8s infinite;
+    transform: scale(1.05);
+}
+
+.segment-tile.preview-playing .segment-number {
+    color: #000 !important;
+    font-weight: 700;
+}
+
+.segment-tile.preview-playing .segment-timerange {
+    color: #333 !important;
+    font-weight: 600;
+}
+
+.segment-tile.preview-playing .segment-include-btn {
+    background: #ff6b6b !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.segment-tile.preview-playing .segment-include-btn:hover {
+    background: #ff4757 !important;
+}
+
+@keyframes tileGlow {
+    0% { 
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+        border-color: #ff6b6b;
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(255, 107, 107, 1);
+        border-color: #ff4757;
+    }
+    100% { 
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+        border-color: #ff6b6b;
+    }
+}
+
 .segment-number {
     font-size: 20px;
     font-weight: bold;
@@ -281,21 +388,8 @@ body {
 .segment-timerange {
     font-size: 10px;
     opacity: 0.7;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
     line-height: 1.2;
-}
-
-.segment-origin {
-    font-size: 11px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    background: rgba(0,0,0,0.05);
-}
-
-.segment-tile.selected .segment-origin {
-    background: rgba(255,255,255,0.2);
 }
 
 .segment-include-btn {
