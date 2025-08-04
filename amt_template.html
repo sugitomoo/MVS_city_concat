@@ -95,8 +95,8 @@
 <section class="container" id="VideoSummarization">
     <div class="amt-container">
         <div class="instructions">
-            <h2>Multi-Video Summarization Task</h2>
-            <p>In this task, you will watch 5 videos about <strong>${city_name}</strong> and select the most representative, impressive, and unique scenes that best summarize the city across the entire video collection.</p>
+            <h2>Multi-Video Summarization Task - Concatenated Video</h2>
+            <p>In this task, you will watch a single video that contains 5 concatenated videos about <strong>${city_name}</strong>. Please select the most representative, impressive, and unique scenes that best summarize the city from this combined video.</p>
             
             <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ffeaa7;">
                 <strong>⚠️ IMPORTANT:</strong> You MUST click "Save Results" button (located in the interface below) to save your selections. After saving, scroll down and click the "Submit" button to complete the HIT.
@@ -106,11 +106,11 @@
                 <div class="instructions-column">
                     <h3>Selection Criterion</h3>
                     <ul>
-                        <li>Please first watch all videos, then, choose the most attractive, clear, or visually impressive segments from all segments.</li>
-                        <li>If a similar scene appears in other videos, avoid duplication.</li>
-                        <li>If the same content exists in multiple videos, choose only the most attractive, clear, or visually impressive version.</li>
-                        <li>The total length of selected segments across all videos should be between <strong>5% and 15%</strong> of the overall content.</li>
-                        <li>Focus on scenes that are unique and valuable, ideally those only visible in that specific video.</li>
+                        <li>Watch the entire concatenated video to understand all available content about the city.</li>
+                        <li>Choose the most attractive, clear, or visually impressive segments from all segments.</li>
+                        <li>Avoid selecting duplicate or similar content - if the same scene appears multiple times, choose only the best version.</li>
+                        <li>The total length of selected segments should be between <strong>5% and 15%</strong> of the overall video duration.</li>
+                        <li>Focus on scenes that uniquely represent the city's characteristics and appeal.</li>
                         <li>Audio is muted, so please base your judgment only on visuals.</li>
                         <li>Do not consider temporary on-screen text (subtitles, overlays) as the main reason to judge importance.</li>
                     </ul>
@@ -119,13 +119,13 @@
                 <div class="instructions-column">
                     <h3>Interface Operations</h3>
                     <ul>
-                        <li><strong>Video Navigation:</strong> Use video controls to play, pause, and seek through videos.</li>
-                        <li><strong>Segment Selection:</strong> Click on segment tiles to jump to that segment in the video.</li>
+                        <li><strong>Video Navigation:</strong> Use video controls to play, pause, and seek through the video.</li>
+                        <li><strong>Segment Selection:</strong> Click on segment tiles below the video to jump to that segment.</li>
                         <li><strong>Include/Remove:</strong> Click the "Include" button on segment tiles to select them for the summary.</li>
                         <li><strong>Quick Include:</strong> Use the "Include Current Segment" button to select the segment at current playback position.</li>
-                        <li><strong>Progress Bar:</strong> Click on the progress bar to jump to specific times.</li>
-                        <li><strong>Segment Boundaries:</strong> Visual boundaries on the progress bar show segment divisions.</li>
-                        <li><strong>Statistics:</strong> Monitor your selection progress using the stats at the top.</li>
+                        <li><strong>Progress Bar:</strong> Click on the progress bar to jump to specific times. Segment boundaries are visually marked.</li>
+                        <li><strong>Preview:</strong> Use the "Preview Selected Segments" button to watch all your selected segments in sequence.</li>
+                        <li><strong>Statistics:</strong> Monitor your selection progress using the stats at the top (aim for 5-15%).</li>
                         <li><strong>Save:</strong> Click "Save Results" when finished to submit your selections.</li>
                     </ul>
                 </div>
@@ -134,12 +134,12 @@
             <div class="instructions-workflow">
                 <h3>Workflow</h3>
                 <ol>
-                    <li>Check the name of the tourist city provided as the query.</li>
-                    <li>Watch all videos related to the city.</li>
-                    <li>From each video, select important segments that best express the city's characteristics and appeal.</li>
-                    <li>Check for duplicate content across videos.</li>
-                    <li>If a similar segment has already been selected from another video, choose only the best version and discard the redundant one.</li>
-                    <li>After selecting, double-check that the final summary covers all key aspects of the city without unnecessary repetition or omissions.</li>
+                    <li>Check the name of the tourist city provided as the query (<strong>${city_name}</strong>).</li>
+                    <li>Watch the entire concatenated video to get an overview of all available content.</li>
+                    <li>Select segments that best express the city's characteristics and appeal.</li>
+                    <li>Ensure no duplicate content is selected - if similar scenes appear, choose only the best one.</li>
+                    <li>Monitor the percentage indicator to ensure your selection is between 5% and 15%.</li>
+                    <li>Use the "Preview Selected Segments" button to review your selections.</li>
                     <li>Press the "Save Results" button in the interface below.</li>
                     <li>After seeing "Selection saved!" message, scroll down and click the "Submit" button to complete the HIT.</li>
                 </ol>
@@ -182,21 +182,14 @@
 
 <script>
     $(document).ready(function() {
-        // Configuration
+        // Configuration - Updated for concatenated version
         const GITHUB_PAGES_URL = 'https://sugitomoo.github.io/MVS_city_concat/';
         const GITHUB_PAGES_ORIGIN = 'https://sugitomoo.github.io';
         
         const cityData = {
             area: '${area}',
             place: '${place}',
-            cityName: '${city_name}',
-            videoIds: [
-                '${video1_id}',
-                '${video2_id}',
-                '${video3_id}',
-                '${video4_id}',
-                '${video5_id}'
-            ]
+            cityName: '${city_name}'
         };
         
         // Initialize iframe
@@ -205,7 +198,6 @@
             area: cityData.area,
             place: cityData.place,
             city: cityData.cityName,
-            videos: cityData.videoIds.join(','),
             mode: 'amt'
         });
         

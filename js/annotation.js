@@ -24,7 +24,6 @@ function getURLParams() {
         area: params.get('area'),
         place: params.get('place'),
         city: params.get('city'),
-        videos: params.get('videos') ? params.get('videos').split(',') : [],
         mode: params.get('mode') || 'standalone',
         assignmentId: params.get('assignmentId')
     };
@@ -43,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
         area: params.area,
         place: params.place,
         cityName: params.city || params.place,
-        videoIds: params.videos,
         mode: params.mode
     };
     
@@ -73,25 +71,20 @@ async function loadSegmentsData() {
 
 function updatePreviewButton() {
     const previewButton = document.getElementById('preview-btn');
-    const hasSelections = Object.keys(selections).length > 0;
-    previewButton.disabled = !hasSelections;
-    
-    // デバッグ用ログ
-    console.log('Preview button update:', {
-        hasSelections: hasSelections,
-        selectionsCount: Object.keys(selections).length,
-        disabled: !hasSelections
-    });
+    previewButton.disabled = Object.keys(selections).length === 0;
 }
 
 // Preview functionality
 function startPreview() {
     console.log('Starting preview...'); // デバッグ用
     
-    // Build preview queue from selected segments
+    // Build preview queue from selected segments in order
     previewState.queue = [];
     
-    segmentData.forEach(segment => {
+    // Sort segments by segment number to play in order
+    const sortedSegments = [...segmentData].sort((a, b) => a.segmentNumber - b.segmentNumber);
+    
+    sortedSegments.forEach(segment => {
         if (selections[segment.id]) {
             previewState.queue.push({
                 segmentId: segment.id,
@@ -120,7 +113,7 @@ function startPreview() {
 }
 
 function playNextSegment() {
-    console.log('Playing segment:', previewState.currentIndex); // デバッグ用
+    console.log('playNextSegment called, index:', previewState.currentIndex); // デバッグ用
     
     if (!previewState.isPlaying || previewState.currentIndex >= previewState.queue.length) {
         console.log('Preview finished or stopped');
@@ -134,9 +127,7 @@ function playNextSegment() {
     // Highlight current segment
     clearPreviewHighlights();
     const tile = document.getElementById(`tile-${current.segmentId}`);
-    const progressBlock = document.getElementById(`progress-block-${current.segmentId}`);
     if (tile) tile.classList.add('preview-playing');
-    if (progressBlock) progressBlock.classList.add('preview-playing');
     
     // Update status
     document.getElementById('preview-info').textContent = 
@@ -145,13 +136,7 @@ function playNextSegment() {
     // Play segment
     console.log(`Playing from ${current.segment.start} to ${current.segment.end}`);
     player.currentTime = current.segment.start;
-    
-    // Ensure video plays
-    player.play().then(() => {
-        console.log('Video playing');
-    }).catch(err => {
-        console.error('Error playing video:', err);
-    });
+    player.play();
     
     // Monitor playback
     if (previewState.interval) clearInterval(previewState.interval);
@@ -177,9 +162,7 @@ function stopPreview() {
     
     // Pause video
     const player = document.getElementById('concat-video-player');
-    if (player && !player.paused) {
-        player.pause();
-    }
+    if (player) player.pause();
     
     // Clear highlights
     clearPreviewHighlights();
@@ -191,11 +174,10 @@ function stopPreview() {
 }
 
 function clearPreviewHighlights() {
-    document.querySelectorAll('.segment-tile.preview-playing').forEach(tile => {
-        tile.classList.remove('preview-playing');
-    });
-    document.querySelectorAll('.segment-block.preview-playing').forEach(block => {
-        block.classList.remove('preview-playing');
+    // Clear all preview highlights
+    segmentData.forEach(segment => {
+        const tile = document.getElementById(`tile-${segment.id}`);
+        if (tile) tile.classList.remove('preview-playing');
     });
 }
 
@@ -219,7 +201,23 @@ function processSegmentsData(segmentsJson) {
     document.getElementById('total-segments').textContent = segmentData.length;
     createSegmentTiles();
     updateProgress();
-    updatePreviewButton(); // 初期ロード時にプレビューボタンを更新
+    updatePreviewButton();
+}
+
+function previewSegment(segmentNumber) {
+    const segment = segmentData.find(s => s.segmentNumber === segmentNumber);
+    if (!segment) return;
+    
+    const player = document.getElementById('concat-video-player');
+    player.currentTime = segment.start;
+    player.play();
+    
+    const checkTime = setInterval(() => {
+        if (player.currentTime >= segment.end) {
+            player.pause();
+            clearInterval(checkTime);
+        }
+    }, 100);
 }
 
 function createSegmentTiles() {
@@ -253,7 +251,6 @@ function initializeVideo() {
     player.addEventListener('loadedmetadata', function() {
         console.log('Video metadata loaded, duration:', player.duration);
         document.getElementById('total-time').textContent = formatTime(player.duration);
-        createProgressBarSegments();
     });
     
     player.addEventListener('canplay', function() {
@@ -284,7 +281,7 @@ function createProgressBarSegments() {
         block.style.width = `${(segment.duration / videoDuration) * 100}%`;
         block.onclick = (e) => {
             e.stopPropagation();
-            jumpToSegment(segment.segmentNumber);
+            previewSegment(segment.segmentNumber);
         };
         
         block.innerHTML = `<span class="segment-number-label">${segment.segmentNumber + 1}</span>`;
@@ -299,7 +296,9 @@ function jumpToSegment(segmentNumber) {
     
     const player = document.getElementById('concat-video-player');
     player.currentTime = segment.start;
-    player.play();
+    player.play().catch(err => {
+        console.error('Error playing video:', err);
+    });
 }
 
 function toggleSegment(segmentId) {
@@ -332,29 +331,12 @@ function toggleSegment(segmentId) {
     }
     
     updateProgress();
-    updatePreviewButton(); // セグメント選択/解除時にプレビューボタンを更新
 }
 
 function updatePlayhead() {
     const player = document.getElementById('concat-video-player');
-    const playhead = document.getElementById('playhead');
-    const progressBar = document.getElementById('progress-bar');
     const currentTimeLabel = document.getElementById('current-time');
-    
-    const percentage = (player.currentTime / player.duration) * 100;
-    playhead.style.left = `${percentage}%`;
-    progressBar.style.width = `${percentage}%`;
     currentTimeLabel.textContent = formatTime(player.currentTime);
-}
-
-function seekVideo(event) {
-    const container = event.currentTarget;
-    const rect = container.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const percentage = x / rect.width;
-    
-    const player = document.getElementById('concat-video-player');
-    player.currentTime = percentage * player.duration;
 }
 
 function includeCurrentSegment() {
@@ -433,31 +415,20 @@ function saveResults() {
     
     // Format results by original video
     const formattedData = {};
-    cityInfo.videoIds.forEach(videoId => {
-        formattedData[videoId] = {};
-    });
     
-    // Map selections back to original videos
-    Object.keys(selections).forEach(segmentId => {
-        const selection = selections[segmentId];
-        const originalVideo = selection.originalVideo;
-        const originalSegmentNum = selection.originalSegmentNumber;
+    // Group selections by original video
+    segmentData.forEach(segment => {
+        const originalVideo = segment.originalVideo;
         
         if (!formattedData[originalVideo]) {
             formattedData[originalVideo] = {};
         }
         
-        formattedData[originalVideo][`segment_${originalSegmentNum}`] = 1;
-    });
-    
-    // Fill in zeros for unselected segments
-    segmentData.forEach(segment => {
-        const originalVideo = segment.originalVideo;
-        const originalSegmentNum = segment.originalSegmentNumber;
-        
-        if (formattedData[originalVideo] && 
-            !formattedData[originalVideo][`segment_${originalSegmentNum}`]) {
-            formattedData[originalVideo][`segment_${originalSegmentNum}`] = 0;
+        // Check if this segment is selected
+        if (selections[segment.id]) {
+            formattedData[originalVideo][`segment_${segment.originalSegmentNumber}`] = 1;
+        } else {
+            formattedData[originalVideo][`segment_${segment.originalSegmentNumber}`] = 0;
         }
     });
     
@@ -512,7 +483,6 @@ function showError(message) {
 window.jumpToSegment = jumpToSegment;
 window.toggleSegment = toggleSegment;
 window.includeCurrentSegment = includeCurrentSegment;
-window.seekVideo = seekVideo;
 window.saveResults = saveResults;
 window.startPreview = startPreview;
 window.stopPreview = stopPreview;

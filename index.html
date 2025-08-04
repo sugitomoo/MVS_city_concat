@@ -2,14 +2,14 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Multi-Video Summarization Annotation</title>
+    <title>Multi-Video Summarization Annotation - Concatenated View</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="main-container">
         <!-- Instructions Section -->
         <div class="instructions-section">
-            <h2>Multi-Video Summarization</h2>
+            <h2>Multi-Video Summarization - Concatenated View</h2>
             <p>This video contains 5 concatenated videos about the location. Select the most representative, impressive, and unique segments.</p>
         </div>
 
@@ -40,12 +40,6 @@
             <video class="video-player" id="concat-video-player" controls>
                 <!-- Source will be set dynamically -->
             </video>
-            
-            <div class="video-progress-container" id="progress-container" onclick="seekVideo(event)">
-                <div class="video-progress-bar" id="progress-bar"></div>
-                <div id="segment-blocks"></div>
-                <div class="playhead" id="playhead" style="left: 0%;"></div>
-            </div>
             
             <div class="time-labels">
                 <span id="current-time">0:00</span>
