@@ -338,6 +338,14 @@ function includeCurrentSegment() {
 function updateProgress() {
     const percentage = totalDuration > 0 ? (selectedDuration / totalDuration * 100) : 0;
     
+    // デバッグ用ログ
+    console.log('updateProgress called:', {
+        selectedDuration: selectedDuration,
+        totalDuration: totalDuration,
+        percentage: percentage,
+        selectionsCount: Object.keys(selections).length
+    });
+    
     document.getElementById('selected-segments').textContent = Object.keys(selections).length;
     document.getElementById('selected-duration-display').textContent = formatDuration(selectedDuration);
     document.getElementById('percentage-display').textContent = percentage.toFixed(1) + '%';
