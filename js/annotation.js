@@ -73,7 +73,15 @@ async function loadSegmentsData() {
 
 function updatePreviewButton() {
     const previewButton = document.getElementById('preview-btn');
-    previewButton.disabled = Object.keys(selections).length === 0;
+    const hasSelections = Object.keys(selections).length > 0;
+    previewButton.disabled = !hasSelections;
+    
+    // デバッグ用ログ
+    console.log('Preview button update:', {
+        hasSelections: hasSelections,
+        selectionsCount: Object.keys(selections).length,
+        disabled: !hasSelections
+    });
 }
 
 // Preview functionality
@@ -211,7 +219,7 @@ function processSegmentsData(segmentsJson) {
     document.getElementById('total-segments').textContent = segmentData.length;
     createSegmentTiles();
     updateProgress();
-    updatePreviewButton();
+    updatePreviewButton(); // 初期ロード時にプレビューボタンを更新
 }
 
 function createSegmentTiles() {
@@ -324,6 +332,7 @@ function toggleSegment(segmentId) {
     }
     
     updateProgress();
+    updatePreviewButton(); // セグメント選択/解除時にプレビューボタンを更新
 }
 
 function updatePlayhead() {
