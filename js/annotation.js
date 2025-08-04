@@ -71,7 +71,18 @@ async function loadSegmentsData() {
 
 function updatePreviewButton() {
     const previewButton = document.getElementById('preview-btn');
-    previewButton.disabled = Object.keys(selections).length === 0;
+    const hasSelections = Object.keys(selections).length > 0;
+    
+    if (previewButton) {
+        previewButton.disabled = !hasSelections;
+    }
+    
+    // デバッグ用
+    console.log('Preview button update:', {
+        hasSelections: hasSelections,
+        selectionsCount: Object.keys(selections).length,
+        disabled: !hasSelections
+    });
 }
 
 // Preview functionality
@@ -202,6 +213,14 @@ function processSegmentsData(segmentsJson) {
     createSegmentTiles();
     updateProgress();
     updatePreviewButton();
+    
+    // デバッグ用
+    console.log('toggleSegment completed:', {
+        segmentId: segmentId,
+        isSelected: !!selections[segmentId],
+        totalSelections: Object.keys(selections).length,
+        selectedDuration: selectedDuration
+    });
 }
 
 function previewSegment(segmentNumber) {
