@@ -69,171 +69,9 @@ async function loadSegmentsData() {
     }
 }
 
-function processSegmentsData(segmentsJson) {
-    const allSegments = segmentsJson[cityInfo.place] || [];
-    
-    // Process segments
-    segmentData = allSegments.map(segment => ({
-        id: `segment_${segment.segment_number}`,
-        segmentNumber: segment.segment_number,
-        start: segment.start,
-        end: segment.end,
-        duration: segment.duration,
-        originalVideo: segment.original_video,
-        originalSegmentNumber: segment.original_segment_number
-    }));
-    
-    totalDuration = segmentData.reduce((sum, segment) => sum + segment.duration, 0);
-    
-    // Update UI
-    document.getElementById('total-segments').textContent = segmentData.length;
-    createSegmentTiles();
-    updateProgress();
-    updatePreviewButton();
-}
-
-function createSegmentTiles() {
-    const grid = document.getElementById('segments-grid');
-    grid.innerHTML = '';
-    
-    segmentData.forEach(segment => {
-        const tile = document.createElement('div');
-        tile.className = 'segment-tile';
-        tile.id = `tile-${segment.id}`;
-        tile.onclick = () => jumpToSegment(segment.segmentNumber);
-        
-        tile.innerHTML = `
-            <div class="segment-number">${segment.segmentNumber + 1}</div>
-            <div class="segment-timerange">
-                ${formatTime(segment.start)} - ${formatTime(segment.end)}
-            </div>
-            <button class="segment-include-btn" 
-                    onclick="event.stopPropagation(); toggleSegment('${segment.id}')">
-                Include
-            </button>
-        `;
-        
-        grid.appendChild(tile);
-    });
-}
-
-function initializeVideo() {
-    const player = document.getElementById('concat-video-player');
-    
-    player.addEventListener('loadedmetadata', function() {
-        console.log('Video metadata loaded, duration:', player.duration);
-        document.getElementById('total-time').textContent = formatTime(player.duration);
-    });
-    
-    player.addEventListener('canplay', function() {
-        console.log('Video can play');
-    });
-    
-    player.addEventListener('error', function(e) {
-        console.error('Video error:', e);
-    });
-    
-    player.addEventListener('timeupdate', function() {
-        updateCurrentTime();
-    });
-}
-
-function updateCurrentTime() {
-    const player = document.getElementById('concat-video-player');
-    const currentTimeLabel = document.getElementById('current-time');
-    currentTimeLabel.textContent = formatTime(player.currentTime);
-}
-
-function jumpToSegment(segmentNumber) {
-    const segment = segmentData.find(s => s.segmentNumber === segmentNumber);
-    if (!segment) return;
-    
-    const player = document.getElementById('concat-video-player');
-    player.currentTime = segment.start;
-    player.play().catch(err => {
-        console.error('Error playing video:', err);
-    });
-}
-
-function toggleSegment(segmentId) {
-    const segment = segmentData.find(s => s.id === segmentId);
-    if (!segment) return;
-    
-    const tile = document.getElementById(`tile-${segmentId}`);
-    const button = tile ? tile.querySelector('.segment-include-btn') : null;
-    
-    if (selections[segmentId]) {
-        delete selections[segmentId];
-        if (tile) {
-            tile.classList.remove('selected');
-            if (button) button.textContent = 'Include';
-        }
-        selectedDuration -= segment.duration;
-    } else {
-        selections[segmentId] = {
-            segmentNumber: segment.segmentNumber,
-            originalVideo: segment.originalVideo,
-            originalSegmentNumber: segment.originalSegmentNumber,
-            duration: segment.duration
-        };
-        if (tile) {
-            tile.classList.add('selected');
-            if (button) button.textContent = 'Remove';
-        }
-        selectedDuration += segment.duration;
-    }
-    
-    updateProgress();
-    updatePreviewButton();
-    
-    // デバッグ用
-    console.log('toggleSegment completed:', {
-        segmentId: segmentId,
-        isSelected: !!selections[segmentId],
-        totalSelections: Object.keys(selections).length,
-        selectedDuration: selectedDuration
-    });
-}
-
-function updateProgress() {
-    const percentage = totalDuration > 0 ? (selectedDuration / totalDuration * 100) : 0;
-    
-    // デバッグ用ログ
-    console.log('updateProgress called:', {
-        selectedDuration: selectedDuration,
-        totalDuration: totalDuration,
-        percentage: percentage,
-        selectionsCount: Object.keys(selections).length
-    });
-    
-    document.getElementById('selected-segments').textContent = Object.keys(selections).length;
-    document.getElementById('selected-duration-display').textContent = formatDuration(selectedDuration);
-    document.getElementById('percentage-display').textContent = percentage.toFixed(1) + '%';
-    
-    const percentageBox = document.getElementById('percentage-stat');
-    percentageBox.classList.remove('warning', 'success');
-    
-    if (percentage >= 5 && percentage <= 15) {
-        percentageBox.classList.add('success');
-    } else {
-        percentageBox.classList.add('warning');
-    }
-}
-
 function updatePreviewButton() {
     const previewButton = document.getElementById('preview-btn');
-    const hasSelections = Object.keys(selections).length > 0;
-    
-    if (previewButton) {
-        previewButton.disabled = !hasSelections;
-    }
-    
-    // デバッグ用
-    console.log('Preview button update:', {
-        hasSelections: hasSelections,
-        selectionsCount: Object.keys(selections).length,
-        disabled: !hasSelections
-    });
+    previewButton.disabled = Object.keys(selections).length === 0;
 }
 
 // Preview functionality
@@ -343,6 +181,164 @@ function clearPreviewHighlights() {
     });
 }
 
+function processSegmentsData(segmentsJson) {
+    const allSegments = segmentsJson[cityInfo.place] || [];
+    
+    // Process segments
+    segmentData = allSegments.map(segment => ({
+        id: `segment_${segment.segment_number}`,
+        segmentNumber: segment.segment_number,
+        start: segment.start,
+        end: segment.end,
+        duration: segment.duration,
+        originalVideo: segment.original_video,
+        originalSegmentNumber: segment.original_segment_number
+    }));
+    
+    totalDuration = segmentData.reduce((sum, segment) => sum + segment.duration, 0);
+    
+    // Update UI
+    document.getElementById('total-segments').textContent = segmentData.length;
+    createSegmentTiles();
+    updateProgress();
+    updatePreviewButton();
+}
+
+function previewSegment(segmentNumber) {
+    const segment = segmentData.find(s => s.segmentNumber === segmentNumber);
+    if (!segment) return;
+    
+    const player = document.getElementById('concat-video-player');
+    player.currentTime = segment.start;
+    player.play();
+    
+    const checkTime = setInterval(() => {
+        if (player.currentTime >= segment.end) {
+            player.pause();
+            clearInterval(checkTime);
+        }
+    }, 100);
+}
+
+function createSegmentTiles() {
+    const grid = document.getElementById('segments-grid');
+    grid.innerHTML = '';
+    
+    segmentData.forEach(segment => {
+        const tile = document.createElement('div');
+        tile.className = 'segment-tile';
+        tile.id = `tile-${segment.id}`;
+        tile.onclick = () => jumpToSegment(segment.segmentNumber);
+        
+        tile.innerHTML = `
+            <div class="segment-number">${segment.segmentNumber + 1}</div>
+            <div class="segment-timerange">
+                ${formatTime(segment.start)} - ${formatTime(segment.end)}
+            </div>
+            <button class="segment-include-btn" 
+                    onclick="event.stopPropagation(); toggleSegment('${segment.id}')">
+                Include
+            </button>
+        `;
+        
+        grid.appendChild(tile);
+    });
+}
+
+function initializeVideo() {
+    const player = document.getElementById('concat-video-player');
+    
+    player.addEventListener('loadedmetadata', function() {
+        console.log('Video metadata loaded, duration:', player.duration);
+        document.getElementById('total-time').textContent = formatTime(player.duration);
+    });
+    
+    player.addEventListener('canplay', function() {
+        console.log('Video can play');
+    });
+    
+    player.addEventListener('error', function(e) {
+        console.error('Video error:', e);
+    });
+    
+    player.addEventListener('timeupdate', function() {
+        updatePlayhead();
+    });
+}
+
+function createProgressBarSegments() {
+    const container = document.getElementById('segment-blocks');
+    container.innerHTML = '';
+    
+    const player = document.getElementById('concat-video-player');
+    const videoDuration = player.duration;
+    
+    segmentData.forEach(segment => {
+        const block = document.createElement('div');
+        block.className = 'segment-block unselected';
+        block.id = `progress-block-${segment.id}`;
+        block.style.left = `${(segment.start / videoDuration) * 100}%`;
+        block.style.width = `${(segment.duration / videoDuration) * 100}%`;
+        block.onclick = (e) => {
+            e.stopPropagation();
+            previewSegment(segment.segmentNumber);
+        };
+        
+        block.innerHTML = `<span class="segment-number-label">${segment.segmentNumber + 1}</span>`;
+        
+        container.appendChild(block);
+    });
+}
+
+function jumpToSegment(segmentNumber) {
+    const segment = segmentData.find(s => s.segmentNumber === segmentNumber);
+    if (!segment) return;
+    
+    const player = document.getElementById('concat-video-player');
+    player.currentTime = segment.start;
+    player.play().catch(err => {
+        console.error('Error playing video:', err);
+    });
+}
+
+function toggleSegment(segmentId) {
+    const segment = segmentData.find(s => s.id === segmentId);
+    if (!segment) return;
+    
+    const tile = document.getElementById(`tile-${segmentId}`);
+    const progressBlock = document.getElementById(`progress-block-${segmentId}`);
+    const button = tile.querySelector('.segment-include-btn');
+    
+    if (selections[segmentId]) {
+        delete selections[segmentId];
+        tile.classList.remove('selected');
+        progressBlock.classList.remove('selected');
+        progressBlock.classList.add('unselected');
+        button.textContent = 'Include';
+        selectedDuration -= segment.duration;
+    } else {
+        selections[segmentId] = {
+            segmentNumber: segment.segmentNumber,
+            originalVideo: segment.originalVideo,
+            originalSegmentNumber: segment.originalSegmentNumber,
+            duration: segment.duration
+        };
+        tile.classList.add('selected');
+        progressBlock.classList.add('selected');
+        progressBlock.classList.remove('unselected');
+        button.textContent = 'Remove';
+        selectedDuration += segment.duration;
+    }
+    
+    updateProgress();
+}
+
+function updatePlayhead() {
+    const player = document.getElementById('concat-video-player');
+    const currentTimeLabel = document.getElementById('current-time');
+    currentTimeLabel.textContent = formatTime(player.currentTime);
+}
+
 function includeCurrentSegment() {
     const player = document.getElementById('concat-video-player');
     const currentTime = player.currentTime;
@@ -357,6 +353,31 @@ function includeCurrentSegment() {
         }
     } else {
         alert('No segment found at current playback position');
+    }
+}
+
+function updateProgress() {
+    const percentage = totalDuration > 0 ? (selectedDuration / totalDuration * 100) : 0;
+    
+    // デバッグ用ログ
+    console.log('updateProgress called:', {
+        selectedDuration: selectedDuration,
+        totalDuration: totalDuration,
+        percentage: percentage,
+        selectionsCount: Object.keys(selections).length
+    });
+    
+    document.getElementById('selected-segments').textContent = Object.keys(selections).length;
+    document.getElementById('selected-duration-display').textContent = formatDuration(selectedDuration);
+    document.getElementById('percentage-display').textContent = percentage.toFixed(1) + '%';
+    
+    const percentageBox = document.getElementById('percentage-stat');
+    percentageBox.classList.remove('warning', 'success');
+    
+    if (percentage >= 5 && percentage <= 15) {
+        percentageBox.classList.add('success');
+    } else {
+        percentageBox.classList.add('warning');
     }
 }
 
