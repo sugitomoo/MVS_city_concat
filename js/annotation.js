@@ -80,13 +80,10 @@ function updatePreviewButton() {
 function startPreview() {
     console.log('Starting preview...'); // デバッグ用
     
-    // Build preview queue from selected segments in order
+    // Build preview queue from selected segments
     previewState.queue = [];
     
-    // Sort segments by segment number to play in order
-    const sortedSegments = [...segmentData].sort((a, b) => a.segmentNumber - b.segmentNumber);
-    
-    sortedSegments.forEach(segment => {
+    segmentData.forEach(segment => {
         if (selections[segment.id]) {
             previewState.queue.push({
                 segmentId: segment.id,
@@ -115,7 +112,7 @@ function startPreview() {
 }
 
 function playNextSegment() {
-    console.log('playNextSegment called, index:', previewState.currentIndex); // デバッグ用
+    console.log('Playing segment:', previewState.currentIndex); // デバッグ用
     
     if (!previewState.isPlaying || previewState.currentIndex >= previewState.queue.length) {
         console.log('Preview finished or stopped');
@@ -140,7 +137,13 @@ function playNextSegment() {
     // Play segment
     console.log(`Playing from ${current.segment.start} to ${current.segment.end}`);
     player.currentTime = current.segment.start;
-    player.play();
+    
+    // Ensure video plays
+    player.play().then(() => {
+        console.log('Video playing');
+    }).catch(err => {
+        console.error('Error playing video:', err);
+    });
     
     // Monitor playback
     if (previewState.interval) clearInterval(previewState.interval);
@@ -166,7 +169,9 @@ function stopPreview() {
     
     // Pause video
     const player = document.getElementById('concat-video-player');
-    if (player) player.pause();
+    if (player && !player.paused) {
+        player.pause();
+    }
     
     // Clear highlights
     clearPreviewHighlights();
@@ -178,12 +183,11 @@ function stopPreview() {
 }
 
 function clearPreviewHighlights() {
-    // Clear all preview highlights
-    segmentData.forEach(segment => {
-        const tile = document.getElementById(`tile-${segment.id}`);
-        const progressBlock = document.getElementById(`progress-block-${segment.id}`);
-        if (tile) tile.classList.remove('preview-playing');
-        if (progressBlock) progressBlock.classList.remove('preview-playing');
+    document.querySelectorAll('.segment-tile.preview-playing').forEach(tile => {
+        tile.classList.remove('preview-playing');
+    });
+    document.querySelectorAll('.segment-block.preview-playing').forEach(block => {
+        block.classList.remove('preview-playing');
     });
 }
 
@@ -208,22 +212,6 @@ function processSegmentsData(segmentsJson) {
     createSegmentTiles();
     updateProgress();
     updatePreviewButton();
-}
-
-function previewSegment(segmentNumber) {
-    const segment = segmentData.find(s => s.segmentNumber === segmentNumber);
-    if (!segment) return;
-    
-    const player = document.getElementById('concat-video-player');
-    player.currentTime = segment.start;
-    player.play();
-    
-    const checkTime = setInterval(() => {
-        if (player.currentTime >= segment.end) {
-            player.pause();
-            clearInterval(checkTime);
-        }
-    }, 100);
 }
 
 function createSegmentTiles() {
@@ -288,7 +276,7 @@ function createProgressBarSegments() {
         block.style.width = `${(segment.duration / videoDuration) * 100}%`;
         block.onclick = (e) => {
             e.stopPropagation();
-            previewSegment(segment.segmentNumber);
+            jumpToSegment(segment.segmentNumber);
         };
         
         block.innerHTML = `<span class="segment-number-label">${segment.segmentNumber + 1}</span>`;
@@ -303,9 +291,7 @@ function jumpToSegment(segmentNumber) {
     
     const player = document.getElementById('concat-video-player');
     player.currentTime = segment.start;
-    player.play().catch(err => {
-        console.error('Error playing video:', err);
-    });
+    player.play();
 }
 
 function toggleSegment(segmentId) {
