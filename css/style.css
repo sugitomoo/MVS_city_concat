@@ -29,15 +29,6 @@ body {
     background: #218838;
 }
 
-.home-link {
-    color: white;
-    text-decoration: none;
-    padding: 12px 30px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 8px;
-    display: inline-block;
-}
-
 /* Instructions Section */
 .instructions-section {
     background: white;
@@ -55,74 +46,12 @@ body {
     user-select: none;
 }
 
-.instructions-content {
-    transition: all 0.3s ease;
-}
-
 .instructions-section p {
     color: #495057;
     font-size: 16px;
     text-align: center;
     margin-bottom: 25px;
     line-height: 1.5;
-}
-
-.instructions-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 25px;
-}
-
-.instructions-column h3 {
-    color: #2c3e50;
-    font-size: 18px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 8px;
-}
-
-.instructions-column ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.instructions-column li {
-    color: #495057;
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-.instructions-workflow h3 {
-    color: #2c3e50;
-    font-size: 18px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 8px;
-}
-
-.instructions-workflow ol {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.instructions-workflow li {
-    color: #495057;
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-@media (max-width: 768px) {
-    .instructions-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .instructions-section {
-        padding: 20px;
-    }
 }
 
 /* Progress Dashboard */
@@ -170,135 +99,25 @@ body {
     margin-top: 5px;
 }
 
-.progress-bar-container {
-    background: #e9ecef;
-    height: 40px;
-    border-radius: 20px;
-    overflow: hidden;
-    position: relative;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-}
-
-.target-zone {
-    position: absolute;
-    top: 0;
-    left: 5%;
-    width: 10%;
-    height: 100%;
-    background: rgba(76, 175, 80, 0.3);
-    border-left: 3px solid #4CAF50;
-    border-right: 3px solid #4CAF50;
-}
-
-/* Video Controls Section */
-.video-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin: 0 20px 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.video-preview-button, .video-stop-button {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.video-preview-button {
-    background: #007bff;
-    color: white;
-}
-
-.video-preview-button:hover:not(:disabled) {
-    background: #0056b3;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,123,255,0.3);
-}
-
-.video-preview-button:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.video-stop-button {
-    background: #dc3545;
-    color: white;
-}
-
-.video-stop-button:hover {
-    background: #c82333;
-}
-
-.video-preview-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: #e3f2fd;
-    border-radius: 6px;
-    font-size: 13px;
-}
-
-.video-preview-label {
-    color: #1976d2;
-    font-weight: 500;
-}
-
-.video-preview-info {
-    color: #333;
-}
-
 /* Video Container */
-.videos-section {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    margin-bottom: 30px;
-}
-
 .video-container {
     background: white;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.video-container.preview-active {
-    border: 3px solid #007bff;
-    box-shadow: 0 4px 20px rgba(0,123,255,0.3);
+    margin-bottom: 30px;
 }
 
 .video-player {
     width: 100%;
-    height: 400px;
+    height: 500px;
     background: #000;
 }
 
 /* Progress Bar */
 .video-progress-container {
     position: relative;
-    height: 60px;
+    height: 80px;
     background: #e9ecef;
     border-radius: 8px;
     margin: 15px 20px;
@@ -325,10 +144,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    flex-direction: column;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     box-sizing: border-box;
+    padding: 2px;
 }
 
 .segment-block.unselected {
@@ -341,33 +162,15 @@ body {
     color: white;
 }
 
-.segment-block.preview-playing {
-    background: rgba(255, 193, 7, 0.9) !important;
-    color: #000 !important;
-    border: 3px solid #ff6b6b !important;
-    border-radius: 4px;
-    animation: pulse 0.8s infinite;
-    z-index: 5;
-}
-
-@keyframes pulse {
-    0% { 
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% { 
-        opacity: 0.8;
-        transform: scale(1.05);
-    }
-    100% { 
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
 .segment-block:hover {
     opacity: 0.8;
     border-color: #212529;
+}
+
+.segment-video-label {
+    font-size: 9px;
+    opacity: 0.8;
+    margin-top: 2px;
 }
 
 .playhead {
@@ -408,24 +211,51 @@ body {
     transform: scale(0.95);
 }
 
-/* Segments */
+/* Video Source Indicators */
+.video-sources {
+    display: flex;
+    gap: 15px;
+    margin: 0 20px 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.source-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: white;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 2px solid #dee2e6;
+}
+
+.source-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+/* Segments Grid */
 .segments-container {
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
     padding: 20px;
 }
 
 .segments-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
 }
 
 .segment-tile {
     background: white;
     border: 2px solid #dee2e6;
     border-radius: 6px;
-    padding: 6px;
+    padding: 8px;
     cursor: pointer;
     text-align: center;
     transition: all 0.3s ease;
@@ -442,50 +272,8 @@ body {
     border-color: #764ba2;
 }
 
-.segment-tile.preview-playing {
-    border: 4px solid #ff6b6b !important;
-    background: rgba(255, 193, 7, 0.2) !important;
-    animation: tileGlow 0.8s infinite;
-    transform: scale(1.05);
-}
-
-.segment-tile.preview-playing .segment-number {
-    color: #000 !important;
-    font-weight: 700;
-}
-
-.segment-tile.preview-playing .segment-timerange {
-    color: #333 !important;
-    font-weight: 600;
-}
-
-.segment-tile.preview-playing .segment-include-btn {
-    background: #ff6b6b !important;
-    color: white !important;
-    font-weight: 600;
-}
-
-.segment-tile.preview-playing .segment-include-btn:hover {
-    background: #ff4757 !important;
-}
-
-@keyframes tileGlow {
-    0% { 
-        box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
-        border-color: #ff6b6b;
-    }
-    50% { 
-        box-shadow: 0 0 30px rgba(255, 107, 107, 1);
-        border-color: #ff4757;
-    }
-    100% { 
-        box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
-        border-color: #ff6b6b;
-    }
-}
-
 .segment-number {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     margin-bottom: 4px;
 }
@@ -497,18 +285,27 @@ body {
     line-height: 1.2;
 }
 
-.segment-timerange div {
-    text-align: center;
+.segment-origin {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.05);
+}
+
+.segment-tile.selected .segment-origin {
+    background: rgba(255,255,255,0.2);
 }
 
 .segment-include-btn {
     width: 100%;
-    padding: 3px 6px;
+    padding: 4px 8px;
     border: none;
     border-radius: 3px;
     background: #28a745;
     color: white;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     margin-top: 4px;
@@ -528,4 +325,14 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+@media (max-width: 768px) {
+    .video-sources {
+        flex-wrap: wrap;
+    }
+    
+    .segments-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
 }

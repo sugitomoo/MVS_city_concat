@@ -7,6 +7,12 @@
 </head>
 <body>
     <div class="main-container">
+        <!-- Instructions Section -->
+        <div class="instructions-section">
+            <h2>Multi-Video Summarization - Concatenated View</h2>
+            <p>This video contains 5 concatenated videos about the location. Select the most representative, impressive, and unique segments.</p>
+        </div>
+
         <!-- Progress Dashboard -->
         <div class="progress-dashboard">
             <div class="progress-stats">
@@ -24,19 +30,43 @@
                 </div>
                 <div class="stat-box warning" id="percentage-stat">
                     <div class="stat-value" id="percentage-display">0%</div>
-                    <div class="stat-label">Of Total</div>
+                    <div class="stat-label">Of Total (Target: 5-15%)</div>
                 </div>
             </div>
-            
+        </div>
 
+        <!-- Video Container -->
+        <div class="video-container">
+            <video class="video-player" id="concat-video-player" controls>
+                <!-- Source will be set dynamically -->
+            </video>
+            
+            <!-- Video Source Indicators -->
+            <div class="video-sources" id="video-sources">
+                <!-- Will be populated dynamically -->
+            </div>
+            
+            <div class="video-progress-container" id="progress-container" onclick="seekVideo(event)">
+                <div class="video-progress-bar" id="progress-bar"></div>
+                <div id="segment-blocks"></div>
+                <div class="playhead" id="playhead" style="left: 0%;"></div>
+            </div>
+            
+            <div class="time-labels">
+                <span id="current-time">0:00</span>
+                <button class="include-current-btn" onclick="includeCurrentSegment()">Include Current Segment</button>
+                <span id="total-time">0:00</span>
+            </div>
         </div>
-        
-        <!-- Videos Section -->
-        <div class="videos-section" id="videos-section">
-            <!-- Videos will be dynamically generated -->
+
+        <!-- Segments Grid -->
+        <div class="segments-container">
+            <div class="segments-grid" id="segments-grid">
+                <!-- Segments will be dynamically generated -->
+            </div>
         </div>
-        
-        <!-- Save Button at Bottom -->
+
+        <!-- Save Button -->
         <div style="text-align: center; margin: 40px 0; padding: 20px;">
             <button class="save-button" onclick="saveResults()">Save Results</button>
         </div>
