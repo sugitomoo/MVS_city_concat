@@ -151,10 +151,14 @@
         
         <!-- Save Button -->
         <div style="text-align: center; margin: 40px 0; padding: 20px;">
-            <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()" style="margin-right: 15px;">
-                <span>▶</span> Preview Selected Segments
-            </button>
-            <button class="save-button" onclick="saveResults()">Save Results</button>
+            <div style="margin-bottom: 15px;">
+                <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()">
+                    <span>▶</span> Preview Selected Segments
+                </button>
+            </div>
+            <div>
+                <button class="save-button" onclick="saveResults()">Save Results</button>
+            </div>
         </div>
     </div>
     
