@@ -207,8 +207,6 @@ function highlightCurrentSegment() {
         const tile = document.getElementById(`tile-${activeSegment.id}`);
         if (tile) {
             tile.classList.add('currently-playing');
-            // Scroll tile into view if needed
-            tile.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         currentPlayingSegment = activeSegment;
     } else {
