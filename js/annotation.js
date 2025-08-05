@@ -72,7 +72,13 @@ async function loadSegmentsData() {
 
 function updatePreviewButton() {
     const previewButton = document.getElementById('preview-btn');
-    previewButton.disabled = Object.keys(selections).length === 0;
+    const previewButtonBottom = document.getElementById('preview-btn-bottom');
+    const disabled = Object.keys(selections).length === 0;
+    
+    previewButton.disabled = disabled;
+    if (previewButtonBottom) {
+        previewButtonBottom.disabled = disabled;
+    }
 }
 
 // Preview functionality
@@ -106,6 +112,10 @@ function startPreview() {
     
     // Update UI
     document.getElementById('preview-btn').classList.add('hidden');
+    const previewButtonBottom = document.getElementById('preview-btn-bottom');
+    if (previewButtonBottom) {
+        previewButtonBottom.style.display = 'none';
+    }
     document.getElementById('stop-btn').classList.remove('hidden');
     document.getElementById('preview-status').classList.remove('hidden');
     
@@ -170,6 +180,10 @@ function stopPreview() {
     
     // Update UI
     document.getElementById('preview-btn').classList.remove('hidden');
+    const previewButtonBottom = document.getElementById('preview-btn-bottom');
+    if (previewButtonBottom) {
+        previewButtonBottom.style.display = 'inline-block';
+    }
     document.getElementById('stop-btn').classList.add('hidden');
     document.getElementById('preview-status').classList.add('hidden');
     
