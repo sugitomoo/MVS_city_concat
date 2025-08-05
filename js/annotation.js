@@ -114,7 +114,7 @@ function startPreview() {
     document.getElementById('preview-btn').classList.add('hidden');
     const previewButtonBottom = document.getElementById('preview-btn-bottom');
     if (previewButtonBottom) {
-        previewButtonBottom.style.display = 'none';
+        previewButtonBottom.classList.add('hidden');
     }
     document.getElementById('stop-btn').classList.remove('hidden');
     document.getElementById('preview-status').classList.remove('hidden');
@@ -182,7 +182,7 @@ function stopPreview() {
     document.getElementById('preview-btn').classList.remove('hidden');
     const previewButtonBottom = document.getElementById('preview-btn-bottom');
     if (previewButtonBottom) {
-        previewButtonBottom.style.display = 'inline-block';
+        previewButtonBottom.classList.remove('hidden');
     }
     document.getElementById('stop-btn').classList.add('hidden');
     document.getElementById('preview-status').classList.add('hidden');

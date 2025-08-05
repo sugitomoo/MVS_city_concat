@@ -86,6 +86,21 @@
             font-size: 12px;
             color: #6c757d;
         }
+        
+        /* Bottom preview button container - always centered */
+        .bottom-preview-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        /* Ensure bottom preview button is always inline-block */
+        #preview-btn-bottom {
+            display: inline-block !important;
+        }
+        
+        #preview-btn-bottom.hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -151,8 +166,8 @@
         
         <!-- Save Button -->
         <div style="text-align: center; margin: 40px 0; padding: 20px;">
-            <div style="margin-bottom: 15px;">
-                <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()">
+            <div class="bottom-preview-container">
+                <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()" disabled>
                     <span>▶</span> Preview Selected Segments
                 </button>
             </div>
