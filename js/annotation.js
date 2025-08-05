@@ -297,7 +297,8 @@ function initializeVideo() {
     
     player.addEventListener('loadedmetadata', function() {
         console.log('Video metadata loaded, duration:', player.duration);
-        document.getElementById('total-time').textContent = formatTime(player.duration);
+        // total-time要素が削除されたのでこの行は不要
+        // document.getElementById('total-time').textContent = formatTime(player.duration);
     });
     
     player.addEventListener('canplay', function() {
@@ -309,7 +310,8 @@ function initializeVideo() {
     });
     
     player.addEventListener('timeupdate', function() {
-        updatePlayhead();
+        // updatePlayhead関数は時間表示要素を参照するため、削除またはエラーハンドリングが必要
+        // updatePlayhead();
         highlightCurrentSegment();
     });
 }
@@ -355,10 +357,10 @@ function toggleSegment(segmentId) {
     updatePreviewButton();
 }
 
+// updatePlayhead関数を修正（時間表示要素が削除されたため）
 function updatePlayhead() {
-    const player = document.getElementById('concat-video-player');
-    const currentTimeLabel = document.getElementById('current-time');
-    currentTimeLabel.textContent = formatTime(player.currentTime);
+    // 時間表示要素が削除されたため、この関数は何もしない
+    // 必要に応じて他の処理を追加可能
 }
 
 function includeCurrentSegment() {
