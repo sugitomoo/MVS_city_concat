@@ -4,6 +4,84 @@
     <meta charset="UTF-8">
     <title>Multi-Video Summarization Annotation</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Additional styles for button layout */
+        .video-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 0 20px 15px;
+        }
+        
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .include-current-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .include-current-btn:hover {
+            background: #138496;
+        }
+        
+        .include-current-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .video-preview-button {
+            background: #007bff;
+            color: white;
+        }
+        
+        .video-preview-button:hover:not(:disabled) {
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+        }
+        
+        .video-preview-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .video-stop-button {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .video-stop-button:hover {
+            background: #c82333;
+        }
+        
+        /* Update time labels to remove include button styles */
+        .time-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
     <div class="main-container">
@@ -12,7 +90,7 @@
             <h2>Multi-Video Summarization</h2>
             <p>This video contains 5 concatenated videos about the location. Select the most representative, impressive, and unique segments.</p>
         </div>
-
+        
         <!-- Progress Dashboard -->
         <div class="progress-dashboard">
             <div class="progress-stats">
@@ -34,7 +112,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Video Container -->
         <div class="video-container">
             <video class="video-player" id="concat-video-player" controls>
@@ -43,16 +121,18 @@
             
             <div class="time-labels">
                 <span id="current-time">0:00</span>
-                <button class="include-current-btn" onclick="includeCurrentSegment()">Include Current Segment</button>
                 <span id="total-time">0:00</span>
             </div>
             
-            <!-- Preview Controls -->
-            <div class="video-controls">
-                <button class="video-preview-button" id="preview-btn" onclick="startPreview()" disabled>
+            <!-- Combined Action Buttons and Preview Controls -->
+            <div class="video-actions">
+                <button class="action-button include-current-btn" onclick="includeCurrentSegment()">
+                    <span>✓</span> Include Current Segment
+                </button>
+                <button class="action-button video-preview-button" id="preview-btn" onclick="startPreview()" disabled>
                     <span>▶</span> Preview Selected Segments
                 </button>
-                <button class="video-stop-button hidden" id="stop-btn" onclick="stopPreview()">
+                <button class="action-button video-stop-button hidden" id="stop-btn" onclick="stopPreview()">
                     <span>■</span> Stop Preview
                 </button>
                 <div class="video-preview-status hidden" id="preview-status">
@@ -61,19 +141,20 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Segments Grid -->
         <div class="segments-container">
             <div class="segments-grid" id="segments-grid">
                 <!-- Segments will be dynamically generated -->
             </div>
         </div>
-
+        
         <!-- Save Button -->
         <div style="text-align: center; margin: 40px 0; padding: 20px;">
             <button class="save-button" onclick="saveResults()">Save Results</button>
         </div>
     </div>
+    
     <script src="js/annotation.js"></script>
 </body>
 </html>
