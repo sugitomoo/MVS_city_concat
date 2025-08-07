@@ -29,6 +29,18 @@ body {
     background: #218838;
 }
 
+/* Save button container - hidden by default */
+.save-button-container {
+    text-align: center;
+    margin: 40px 0;
+    padding: 20px;
+    display: none;
+}
+
+.save-button-container.visible {
+    display: block;
+}
+
 /* Instructions Section */
 .instructions-section {
     background: white;

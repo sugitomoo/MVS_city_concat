@@ -101,6 +101,18 @@
         #preview-btn-bottom.hidden {
             display: none !important;
         }
+        
+        /* Save button container - hidden by default */
+        .save-button-container {
+            text-align: center;
+            margin: 40px 0;
+            padding: 20px;
+            display: none; /* Hidden by default */
+        }
+        
+        .save-button-container.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -109,6 +121,7 @@
         <div class="instructions-section">
             <h2>Multi-Video Summarization</h2>
             <p>This video contains 5 concatenated videos about the location. Select the most representative, impressive, and unique segments.</p>
+            <p style="color: #dc3545; font-weight: 500;">⚠️ You must watch the entire video before you can save your results.</p>
         </div>
         
         <!-- Progress Dashboard -->
@@ -164,8 +177,8 @@
             </div>
         </div>
         
-        <!-- Save Button -->
-        <div style="text-align: center; margin: 40px 0; padding: 20px;">
+        <!-- Save Button Container -->
+        <div class="save-button-container" id="save-button-container">
             <div class="bottom-preview-container">
                 <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()" disabled>
                     <span>▶</span> Preview Selected Segments

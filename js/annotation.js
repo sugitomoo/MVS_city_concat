@@ -9,6 +9,7 @@ let totalDuration = 0;
 let selectedDuration = 0;
 let cityInfo = {};
 let currentPlayingSegment = null;
+let hasWatchedEntireVideo = false; // Track if user has watched the entire video
 
 // Preview state
 let previewState = {
@@ -311,8 +312,6 @@ function initializeVideo() {
     
     player.addEventListener('loadedmetadata', function() {
         console.log('Video metadata loaded, duration:', player.duration);
-        // total-time要素が削除されたのでこの行は不要
-        // document.getElementById('total-time').textContent = formatTime(player.duration);
     });
     
     player.addEventListener('canplay', function() {
@@ -324,10 +323,41 @@ function initializeVideo() {
     });
     
     player.addEventListener('timeupdate', function() {
-        // updatePlayhead関数は時間表示要素を参照するため、削除またはエラーハンドリングが必要
-        // updatePlayhead();
         highlightCurrentSegment();
+        checkVideoCompletion();
     });
+    
+    // Add ended event listener for video completion
+    player.addEventListener('ended', function() {
+        console.log('Video has ended');
+        hasWatchedEntireVideo = true;
+        showSaveButton();
+    });
+}
+
+// Check if video has been watched to near the end
+function checkVideoCompletion() {
+    const player = document.getElementById('concat-video-player');
+    
+    // Consider video "watched" if user has watched to within 5 seconds of the end
+    if (!hasWatchedEntireVideo && player.duration && (player.duration - player.currentTime) < 5) {
+        hasWatchedEntireVideo = true;
+        showSaveButton();
+    }
+}
+
+// Show save button
+function showSaveButton() {
+    const saveContainer = document.getElementById('save-button-container');
+    
+    if (saveContainer) {
+        saveContainer.classList.add('visible');
+    }
+    
+    // Scroll to save button
+    setTimeout(() => {
+        saveContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 500);
 }
 
 function jumpToSegment(segmentNumber) {
@@ -371,10 +401,8 @@ function toggleSegment(segmentId) {
     updatePreviewButton();
 }
 
-// updatePlayhead関数を修正（時間表示要素が削除されたため）
 function updatePlayhead() {
-    // 時間表示要素が削除されたため、この関数は何もしない
-    // 必要に応じて他の処理を追加可能
+    // Function left empty as time display elements were removed
 }
 
 function includeCurrentSegment() {
@@ -397,7 +425,6 @@ function includeCurrentSegment() {
 function updateProgress() {
     const percentage = totalDuration > 0 ? (selectedDuration / totalDuration * 100) : 0;
     
-    // デバッグ用ログ
     console.log('updateProgress called:', {
         selectedDuration: selectedDuration,
         totalDuration: totalDuration,
@@ -479,10 +506,11 @@ function saveResults() {
         selected_segments: Object.keys(selections).length,
         percentage: percentage,
         timestamp: new Date().toISOString(),
-        concatenated_view: true
+        concatenated_view: true,
+        video_completed: hasWatchedEntireVideo
     };
     
-    console.log('Saving results:', results); // デバッグ用
+    console.log('Saving results:', results);
     
     if (cityInfo.mode === 'amt') {
         window.parent.postMessage({
