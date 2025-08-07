@@ -39,6 +39,7 @@ body {
 
 .bottom-preview-container.visible {
     display: block;
+    text-align: center;
 }
 
 /* Save button container - hidden by default */
