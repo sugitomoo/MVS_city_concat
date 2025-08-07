@@ -100,7 +100,12 @@
             <p>In this task, you will watch a single video that contains 5 concatenated videos about <strong>${city_name}</strong>. Please select the most representative, impressive, and unique scenes that best summarize the city from this combined video.</p>
             
             <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ffeaa7;">
-                <strong>⚠️ IMPORTANT:</strong> You MUST click "Save Results" button (located in the interface below) to save your selections. After saving, scroll down and click the "Submit" button to complete the HIT.
+                <strong>⚠️ IMPORTANT:</strong> 
+                <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                    <li>After watching the video and selecting segments, use the "Preview Selected Segments" button to review your choices.</li>
+                    <li>The "Save Results" button will appear only after you use the preview function.</li>
+                    <li>You MUST click "Save Results" to save your selections before submitting the HIT.</li>
+                </ul>
             </div>
             
             <div class="instructions-grid">
@@ -120,14 +125,14 @@
                 <div class="instructions-column">
                     <h3>Interface Operations</h3>
                     <ul>
-                        <li><strong>Video Navigation:</strong> Use video controls to play, pause, and seek through the video.</li>
+                        <li><strong>Video Navigation:</strong> Use video controls to play, pause, seek through the video, and adjust playback speed.</li>
                         <li><strong>Segment Selection:</strong> Click on segment tiles below the video to jump to that segment.</li>
                         <li><strong>Include/Remove:</strong> Click the "Include" button on segment tiles to select them for the summary.</li>
                         <li><strong>Quick Include:</strong> Use the "Include Current Segment" button to select the segment at current playback position.</li>
                         <li><strong>Currently Playing Indicator:</strong> The segment currently being played is highlighted with a blue border and pulsing animation, making it easy to identify which segment you're watching.</li>
-                        <li><strong>Preview Function:</strong> After selecting segments, use the "Preview Selected Segments" button to watch only your selected segments in sequence. This helps you review your choices before saving.</li>
+                        <li><strong>Preview Function:</strong> After watching the entire video, the "Preview Selected Segments" button will appear. Use it to watch only your selected segments in sequence. During preview, segments will be highlighted in red.</li>
+                        <li><strong>Save Function:</strong> The "Save Results" button appears only after using the preview function. You must click it to save your selections.</li>
                         <li><strong>Statistics:</strong> Monitor your selection progress using the stats at the top (aim for 5-15%).</li>
-                        <li><strong>Save:</strong> Click "Save Results" when finished to submit your selections.</li>
                     </ul>
                 </div>
             </div>
@@ -136,12 +141,12 @@
                 <h3>Workflow</h3>
                 <ol>
                     <li>Check the name of the tourist city provided as the query (<strong>${city_name}</strong>).</li>
-                    <li>Watch the entire concatenated video to get an overview of all available content.</li>
+                    <li>Watch the entire concatenated video to get an overview of all available content. <strong>You must watch the full video before proceeding.</strong></li>
                     <li>Select segments that best express the city's characteristics and appeal. The currently playing segment will be highlighted in blue to help you track your position.</li>
                     <li>Ensure no duplicate content is selected - if similar scenes appear, choose only the best one.</li>
                     <li>Monitor the percentage indicator to ensure your selection is between 5% and 15%.</li>
-                    <li>Use the "Preview Selected Segments" button to review your selections. During preview, selected segments will play in order with a red highlight.</li>
-                    <li>Press the "Save Results" button in the interface below.</li>
+                    <li>After watching the entire video, the "Preview Selected Segments" button will appear. Use it to review your selections. During preview, selected segments will play in order with a red highlight.</li>
+                    <li>After using the preview function, the "Save Results" button will appear. Press it to save your selections.</li>
                     <li>After seeing "Selection saved!" message, scroll down and click the "Submit" button to complete the HIT.</li>
                 </ol>
             </div>
@@ -155,7 +160,8 @@
         <div style="background: #f0f0f0; padding: 20px; margin-top: 20px; border-radius: 8px; text-align: center;">
             <div id="status-message" style="margin-bottom: 15px; font-size: 16px; font-weight: bold;">
                 Please make your selections in the interface above.<br>
-                When finished, scroll down within the interface above and click the 'Save Results' button.
+                After watching the entire video, a 'Preview Selected Segments' button will appear.<br>
+                Once you have previewed your selections, the 'Save Results' button will become available.
             </div>
             <div id="completion-message" style="display: none; margin-top: 15px; color: #4CAF50; font-size: 18px; font-weight: bold;">
                 ✓ Task completed successfully! Once you have previewed and confirmed your selected segments, please type "DONE" in the field below and click Submit.
