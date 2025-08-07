@@ -29,10 +29,22 @@ body {
     background: #218838;
 }
 
+/* Bottom preview button container */
+.bottom-preview-container {
+    text-align: center;
+    margin: 40px 0 15px;
+    padding: 20px;
+    display: none;
+}
+
+.bottom-preview-container.visible {
+    display: block;
+}
+
 /* Save button container - hidden by default */
 .save-button-container {
     text-align: center;
-    margin: 40px 0;
+    margin: 0 0 40px;
     padding: 20px;
     display: none;
 }

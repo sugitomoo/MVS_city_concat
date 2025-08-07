@@ -87,31 +87,32 @@
             color: #6c757d;
         }
         
-        /* Bottom preview button container - always centered */
+        /* Bottom preview button container */
         .bottom-preview-container {
             text-align: center;
-            margin-bottom: 15px;
+            margin: 40px 0 15px;
+            padding: 20px;
+            display: none;
         }
         
-        /* Ensure bottom preview button is always inline-block */
-        #preview-btn-bottom {
-            display: inline-block !important;
-        }
-        
-        #preview-btn-bottom.hidden {
-            display: none !important;
+        .bottom-preview-container.visible {
+            display: block;
         }
         
         /* Save button container - hidden by default */
         .save-button-container {
             text-align: center;
-            margin: 40px 0;
+            margin: 0 0 40px;
             padding: 20px;
             display: none; /* Hidden by default */
         }
         
         .save-button-container.visible {
             display: block;
+        }
+        
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -177,16 +178,16 @@
             </div>
         </div>
         
+        <!-- Bottom Preview Container -->
+        <div class="bottom-preview-container hidden" id="bottom-preview-container">
+            <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()" disabled>
+                <span>▶</span> Preview Selected Segments
+            </button>
+        </div>
+        
         <!-- Save Button Container -->
         <div class="save-button-container" id="save-button-container">
-            <div class="bottom-preview-container">
-                <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()" disabled>
-                    <span>▶</span> Preview Selected Segments
-                </button>
-            </div>
-            <div>
-                <button class="save-button" onclick="saveResults()">Save Results</button>
-            </div>
+            <button class="save-button" onclick="saveResults()">Save Results</button>
         </div>
     </div>
     

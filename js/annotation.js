@@ -10,6 +10,7 @@ let selectedDuration = 0;
 let cityInfo = {};
 let currentPlayingSegment = null;
 let hasWatchedEntireVideo = false; // Track if user has watched the entire video
+let hasUsedPreview = false; // Track if user has used the preview feature
 
 // Preview state
 let previewState = {
@@ -85,6 +86,9 @@ function updatePreviewButton() {
 // Preview functionality
 function startPreview() {
     console.log('Starting preview...'); // デバッグ用
+    
+    // Mark that preview has been used
+    hasUsedPreview = true;
     
     // Build preview queue from selected segments in order
     previewState.queue = [];
@@ -190,6 +194,11 @@ function stopPreview() {
     
     // Re-highlight current segment if video is still playing
     highlightCurrentSegment();
+    
+    // Show save button if video has been watched and preview has been used
+    if (hasWatchedEntireVideo && hasUsedPreview) {
+        showSaveButton();
+    }
 }
 
 function highlightCurrentSegment() {
@@ -331,7 +340,7 @@ function initializeVideo() {
     player.addEventListener('ended', function() {
         console.log('Video has ended');
         hasWatchedEntireVideo = true;
-        showSaveButton();
+        showPreviewButton();
     });
 }
 
@@ -342,8 +351,23 @@ function checkVideoCompletion() {
     // Consider video "watched" if user has watched to within 5 seconds of the end
     if (!hasWatchedEntireVideo && player.duration && (player.duration - player.currentTime) < 5) {
         hasWatchedEntireVideo = true;
-        showSaveButton();
+        showPreviewButton();
     }
+}
+
+// Show preview button only
+function showPreviewButton() {
+    const previewContainer = document.getElementById('bottom-preview-container');
+    
+    if (previewContainer) {
+        previewContainer.classList.remove('hidden');
+        previewContainer.classList.add('visible');
+    }
+    
+    // Scroll to preview button
+    setTimeout(() => {
+        previewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 500);
 }
 
 // Show save button
@@ -353,11 +377,6 @@ function showSaveButton() {
     if (saveContainer) {
         saveContainer.classList.add('visible');
     }
-    
-    // Scroll to save button
-    setTimeout(() => {
-        saveContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 500);
 }
 
 function jumpToSegment(segmentNumber) {
