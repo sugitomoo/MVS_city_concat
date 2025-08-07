@@ -182,7 +182,7 @@ body {
 }
 
 .video-preview-button, .video-stop-button {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 8px 16px;

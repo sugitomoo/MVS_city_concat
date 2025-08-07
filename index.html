@@ -22,8 +22,9 @@
             margin: 0 20px 15px;
         }
         
+        /* Action button styles */
         .action-button {
-            display: flex;
+            display: inline-block;
             align-items: center;
             gap: 6px;
             padding: 8px 16px;
@@ -181,9 +182,11 @@
         
         <!-- Bottom Preview Container -->
         <div class="bottom-preview-container hidden" id="bottom-preview-container">
-            <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()" disabled>
-                <span>▶</span> Preview Selected Segments
-            </button>
+            <div style="text-align: center;">
+                <button class="action-button video-preview-button" id="preview-btn-bottom" onclick="startPreview()" disabled>
+                    <span>▶</span> Preview Selected Segments
+                </button>
+            </div>
         </div>
         
         <!-- Save Button Container -->
