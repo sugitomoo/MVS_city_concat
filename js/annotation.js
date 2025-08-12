@@ -15,9 +15,11 @@ let hasUsedPreview = false; // Track if user has used the preview feature
 // Preview state
 let previewState = {
     isPlaying: false,
+    isPaused: false, // Track if preview is paused
     currentIndex: 0,
     queue: [],
-    interval: null
+    interval: null,
+    pausedTime: null // Store the time when paused
 };
 
 // Get URL parameters
@@ -90,6 +92,55 @@ function startPreview() {
     // Mark that preview has been used
     hasUsedPreview = true;
     
+    // If we're resuming from a paused state
+    if (previewState.isPaused && previewState.queue.length > 0) {
+        console.log('Resuming preview from paused state');
+        previewState.isPlaying = true;
+        previewState.isPaused = false;
+        
+        // Update UI
+        document.getElementById('preview-btn').classList.add('hidden');
+        const previewButtonBottom = document.getElementById('preview-btn-bottom');
+        if (previewButtonBottom) {
+            previewButtonBottom.classList.add('hidden');
+        }
+        document.getElementById('stop-btn').classList.remove('hidden');
+        document.getElementById('preview-status').classList.remove('hidden');
+        
+        // Resume from where we paused
+        const player = document.getElementById('concat-video-player');
+        const current = previewState.queue[previewState.currentIndex];
+        
+        // Highlight current segment
+        clearPreviewHighlights();
+        const tile = document.getElementById(`tile-${current.segmentId}`);
+        if (tile) tile.classList.add('preview-playing');
+        
+        // Update status
+        document.getElementById('preview-info').textContent = 
+            `Segment ${current.segment.segmentNumber + 1} (${previewState.currentIndex + 1}/${previewState.queue.length})`;
+        
+        // Resume playback
+        if (previewState.pausedTime) {
+            player.currentTime = previewState.pausedTime;
+        }
+        player.play();
+        
+        // Monitor playback
+        if (previewState.interval) clearInterval(previewState.interval);
+        previewState.interval = setInterval(() => {
+            if (player.currentTime >= current.segment.end || player.paused) {
+                console.log('Segment ended at:', player.currentTime);
+                clearInterval(previewState.interval);
+                previewState.currentIndex++;
+                previewState.pausedTime = null;
+                setTimeout(() => playNextSegment(), 500); // Small delay between segments
+            }
+        }, 100);
+        
+        return;
+    }
+    
     // Build preview queue from selected segments in order
     previewState.queue = [];
     
@@ -114,6 +165,8 @@ function startPreview() {
     
     previewState.currentIndex = 0;
     previewState.isPlaying = true;
+    previewState.isPaused = false;
+    previewState.pausedTime = null;
     
     // Update UI
     document.getElementById('preview-btn').classList.add('hidden');
@@ -132,8 +185,8 @@ function playNextSegment() {
     console.log('playNextSegment called, index:', previewState.currentIndex); // デバッグ用
     
     if (!previewState.isPlaying || previewState.currentIndex >= previewState.queue.length) {
-        console.log('Preview finished or stopped');
-        stopPreview();
+        console.log('Preview finished');
+        finishPreview();
         return;
     }
     
@@ -168,7 +221,65 @@ function playNextSegment() {
 
 function stopPreview() {
     console.log('Stopping preview'); // デバッグ用
+    
+    // Save current state
+    const player = document.getElementById('concat-video-player');
+    if (previewState.isPlaying && !previewState.isPaused) {
+        previewState.pausedTime = player.currentTime;
+        previewState.isPaused = true;
+    }
+    
     previewState.isPlaying = false;
+    
+    // Clear interval
+    if (previewState.interval) {
+        clearInterval(previewState.interval);
+        previewState.interval = null;
+    }
+    
+    // Pause video
+    if (player) player.pause();
+    
+    // Clear highlights
+    clearPreviewHighlights();
+    
+    // Update UI based on whether we can resume
+    if (previewState.isPaused && previewState.currentIndex < previewState.queue.length) {
+        // Show resume button
+        const previewBtn = document.getElementById('preview-btn');
+        const previewBtnBottom = document.getElementById('preview-btn-bottom');
+        
+        previewBtn.innerHTML = '<span>▶</span> Resume Preview';
+        previewBtn.classList.remove('hidden');
+        
+        if (previewBtnBottom) {
+            previewBtnBottom.innerHTML = '<span>▶</span> Resume Preview';
+            previewBtnBottom.classList.remove('hidden');
+        }
+    } else {
+        // Show normal preview button
+        resetPreviewButtons();
+    }
+    
+    document.getElementById('stop-btn').classList.add('hidden');
+    document.getElementById('preview-status').classList.add('hidden');
+    
+    // Re-highlight current segment if video is still playing
+    highlightCurrentSegment();
+    
+    // Show save button if video has been watched and preview has been used
+    if (hasWatchedEntireVideo && hasUsedPreview) {
+        showSaveButton();
+    }
+}
+
+function finishPreview() {
+    // Reset preview state completely
+    previewState.isPlaying = false;
+    previewState.isPaused = false;
+    previewState.currentIndex = 0;
+    previewState.pausedTime = null;
+    previewState.queue = [];
     
     // Clear interval
     if (previewState.interval) {
@@ -183,21 +294,30 @@ function stopPreview() {
     // Clear highlights
     clearPreviewHighlights();
     
-    // Update UI
-    document.getElementById('preview-btn').classList.remove('hidden');
-    const previewButtonBottom = document.getElementById('preview-btn-bottom');
-    if (previewButtonBottom) {
-        previewButtonBottom.classList.remove('hidden');
-    }
+    // Reset UI
+    resetPreviewButtons();
     document.getElementById('stop-btn').classList.add('hidden');
     document.getElementById('preview-status').classList.add('hidden');
     
-    // Re-highlight current segment if video is still playing
+    // Re-highlight current segment
     highlightCurrentSegment();
     
-    // Show save button if video has been watched and preview has been used
+    // Show save button if conditions met
     if (hasWatchedEntireVideo && hasUsedPreview) {
         showSaveButton();
+    }
+}
+
+function resetPreviewButtons() {
+    const previewBtn = document.getElementById('preview-btn');
+    const previewBtnBottom = document.getElementById('preview-btn-bottom');
+    
+    previewBtn.innerHTML = '<span>▶</span> Preview Selected Segments';
+    previewBtn.classList.remove('hidden');
+    
+    if (previewBtnBottom) {
+        previewBtnBottom.innerHTML = '<span>▶</span> Preview Selected Segments';
+        previewBtnBottom.classList.remove('hidden');
     }
 }
 
@@ -414,6 +534,15 @@ function toggleSegment(segmentId) {
         tile.classList.add('selected');
         button.textContent = 'Remove';
         selectedDuration += segment.duration;
+    }
+    
+    // If selections changed, reset preview state
+    if (previewState.isPaused) {
+        previewState.isPaused = false;
+        previewState.currentIndex = 0;
+        previewState.pausedTime = null;
+        previewState.queue = [];
+        resetPreviewButtons();
     }
     
     updateProgress();
