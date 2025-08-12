@@ -32,7 +32,7 @@ body {
 /* Bottom preview button container */
 .bottom-preview-container {
     text-align: center;
-    margin: 40px 0 15px;
+    margin: 20px 0 15px;
     padding: 20px;
     display: none;
 }
@@ -45,7 +45,7 @@ body {
 /* Save button container - hidden by default */
 .save-button-container {
     text-align: center;
-    margin: 0 0 40px;
+    margin: 0 0 20px;
     padding: 20px;
     display: none;
 }
@@ -130,7 +130,6 @@ body {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    margin-bottom: 30px;
 }
 
 .video-player {
@@ -244,6 +243,9 @@ body {
     max-height: 500px;
     overflow-y: auto;
     padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
 
 .segments-grid {
