@@ -17,7 +17,9 @@ let previewState = {
     isPlaying: false,
     currentIndex: 0,
     queue: [],
-    interval: null
+    interval: null,
+    isPaused: false,  // Track if preview was paused
+    lastStoppedTime: null  // Track where in the segment we stopped
 };
 
 // Get URL parameters
@@ -90,6 +92,32 @@ function startPreview() {
     // Mark that preview has been used
     hasUsedPreview = true;
     
+    // If preview was paused, resume from where we left off
+    if (previewState.isPaused && previewState.queue.length > 0) {
+        console.log('Resuming preview from index:', previewState.currentIndex);
+        previewState.isPlaying = true;
+        previewState.isPaused = false;
+        
+        // Update UI
+        document.getElementById('preview-btn').classList.add('hidden');
+        const previewButtonBottom = document.getElementById('preview-btn-bottom');
+        if (previewButtonBottom) {
+            previewButtonBottom.classList.add('hidden');
+        }
+        document.getElementById('stop-btn').classList.remove('hidden');
+        document.getElementById('preview-status').classList.remove('hidden');
+        
+        // Resume playing
+        if (previewState.lastStoppedTime !== null) {
+            // Resume from the exact time we stopped
+            const player = document.getElementById('concat-video-player');
+            player.currentTime = previewState.lastStoppedTime;
+            previewState.lastStoppedTime = null;
+        }
+        playNextSegment();
+        return;
+    }
+    
     // Build preview queue from selected segments in order
     previewState.queue = [];
     
@@ -114,6 +142,8 @@ function startPreview() {
     
     previewState.currentIndex = 0;
     previewState.isPlaying = true;
+    previewState.isPaused = false;
+    previewState.lastStoppedTime = null;
     
     // Update UI
     document.getElementById('preview-btn').classList.add('hidden');
@@ -133,6 +163,10 @@ function playNextSegment() {
     
     if (!previewState.isPlaying || previewState.currentIndex >= previewState.queue.length) {
         console.log('Preview finished or stopped');
+        // Reset preview state when finished
+        previewState.isPaused = false;
+        previewState.currentIndex = 0;
+        previewState.lastStoppedTime = null;
         stopPreview();
         return;
     }
@@ -169,6 +203,13 @@ function playNextSegment() {
 function stopPreview() {
     console.log('Stopping preview'); // デバッグ用
     previewState.isPlaying = false;
+    previewState.isPaused = true;  // Mark as paused instead of fully stopped
+    
+    // Save current playback position
+    const player = document.getElementById('concat-video-player');
+    if (player && !player.paused) {
+        previewState.lastStoppedTime = player.currentTime;
+    }
     
     // Clear interval
     if (previewState.interval) {
@@ -177,7 +218,6 @@ function stopPreview() {
     }
     
     // Pause video
-    const player = document.getElementById('concat-video-player');
     if (player) player.pause();
     
     // Clear highlights
@@ -414,6 +454,14 @@ function toggleSegment(segmentId) {
         tile.classList.add('selected');
         button.textContent = 'Remove';
         selectedDuration += segment.duration;
+    }
+    
+    // Reset preview state if selection changes
+    if (previewState.isPaused) {
+        previewState.isPaused = false;
+        previewState.currentIndex = 0;
+        previewState.lastStoppedTime = null;
+        previewState.queue = [];
     }
     
     updateProgress();
