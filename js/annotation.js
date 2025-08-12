@@ -357,25 +357,25 @@ function checkVideoCompletion() {
 
 // Show preview button only
 function showPreviewButton() {
-    const previewContainer = document.getElementById('bottom-preview-container');
+    const actionsContainer = document.getElementById('bottom-actions-container');
     
-    if (previewContainer) {
-        previewContainer.classList.remove('hidden');
-        previewContainer.classList.add('visible');
+    if (actionsContainer) {
+        actionsContainer.classList.remove('hidden');
+        actionsContainer.classList.add('visible');
     }
     
-    // Scroll to preview button
+    // Scroll to action buttons
     setTimeout(() => {
-        previewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        actionsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 500);
 }
 
 // Show save button
 function showSaveButton() {
-    const saveContainer = document.getElementById('save-button-container');
+    const saveButton = document.getElementById('save-btn-bottom');
     
-    if (saveContainer) {
-        saveContainer.classList.add('visible');
+    if (saveButton) {
+        saveButton.classList.remove('hidden');
     }
 }
 
