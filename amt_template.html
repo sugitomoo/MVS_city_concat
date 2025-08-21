@@ -97,6 +97,25 @@
             height: 1100px; /* 縦並びレイアウト用に高さを増やす */
         }
     }
+    
+    /* Submit button disabled state */
+    #submit-button:disabled {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+    
+    .confirmation-code {
+        font-family: monospace;
+        font-size: 18px;
+        font-weight: bold;
+        color: #28a745;
+        background: #f0f0f0;
+        padding: 5px 10px;
+        border-radius: 4px;
+        display: inline-block;
+    }
 
 </style>
 
@@ -113,7 +132,8 @@
                 <ul style="margin: 10px 0 0 0; padding-left: 20px;">
                     <li>After watching the video and selecting segments, use the "Preview Selected Segments" button to review your choices.</li>
                     <li>The "Save Results" button will appear only after you use the preview function.</li>
-                    <li>You MUST click "Save Results" to save your selections before submitting the HIT.</li>
+                    <li>You MUST click "Save Results" to receive a confirmation code.</li>
+                    <li>You cannot submit this HIT without the confirmation code.</li>
                 </ul>
             </div>
             
@@ -156,7 +176,8 @@
                     <li><strong>When duplicate content appears, remove the segments with relatively lower importance. However, if adjacent segments contain similar content, you may keep both.</strong></li>
                     <li>Monitor the percentage indicator to ensure your selection is between 5% and 15%.</li>
                     <li>After using the preview function, the "Save Results" button will appear. Press it to save your selections.</li>
-                    <li>After seeing "Selection saved!" message, scroll down and click the "Submit" button to complete the HIT.</li>
+                    <li>After saving, you will receive a confirmation code. Enter this code in the field below.</li>
+                    <li>Click the "Submit" button to complete the HIT.</li>
                 </ol>
             </div>
         </div>
@@ -173,7 +194,9 @@
                 Once you have previewed your selections, the 'Save Results' button will become available.
             </div>
             <div id="completion-message" style="display: none; margin-top: 15px; color: #4CAF50; font-size: 18px; font-weight: bold;">
-                ✓ Task completed successfully! Once you have previewed and confirmed your selected segments, please type "DONE" in the field below and click Submit.
+                ✓ Task completed successfully!<br>
+                Your confirmation code is: <span class="confirmation-code" id="confirmation-code-display"></span><br>
+                Please enter this code in the field below to submit.
             </div>
         </div>
         
@@ -182,11 +205,19 @@
         <input type="hidden" name="city" value="${city_name}" />
         <input type="hidden" name="area" value="${area}" />
         <input type="hidden" name="place" value="${place}" />
+        <input type="hidden" name="confirmation_code" id="hidden-confirmation-code" />
         
         <!-- Input from Worker (AMTテンプレートと同じ形式) -->
         <div class="form-group" style="margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 8px;">
-            <label for="confirmation">Provide the confirmation code here:</label>
-            <input class="form-control" id="confirmation" name="confirmation" placeholder="Type DONE after saving your results" required="" type="text" />
+            <label for="confirmation">Enter your confirmation code:</label>
+            <input class="form-control" id="confirmation" name="confirmation" placeholder="Enter the confirmation code you received after saving" required="" type="text" />
+            <small class="form-text text-muted">You must save your results first to receive a confirmation code.</small>
+        </div>
+        
+        <!-- Submit button - Initially disabled -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="submit" id="submit-button" class="btn btn-primary btn-lg" disabled>Submit HIT</button>
+            <div id="submit-error" style="color: #dc3545; margin-top: 10px; display: none;"></div>
         </div>
         <!-- End input from Worker -->
     </div>
@@ -222,6 +253,14 @@
         // State management
         let currentResults = null;
         let taskCompleted = false;
+        let confirmationCode = null;
+        
+        // Generate confirmation code
+        function generateConfirmationCode() {
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+            return `MVS-${random}-${timestamp.toString(36).toUpperCase()}`;
+        }
         
         // Listen for messages from iframe
         window.addEventListener('message', function(event) {
@@ -233,13 +272,17 @@
                 
                 // Check if percentage is within 5-15% range
                 if (currentResults.percentage >= 5 && currentResults.percentage <= 15) {
-                    // Save to hidden form
+                    // Generate confirmation code
+                    confirmationCode = generateConfirmationCode();
+                    
+                    // Save to hidden form (without modifying the results data)
                     document.getElementById('results-input').value = JSON.stringify(currentResults);
+                    document.getElementById('hidden-confirmation-code').value = confirmationCode;
                     
                     // Update UI
-                    document.getElementById('status-message').innerHTML = 
-                        '<span style="color: #4CAF50;">✓ Selection saved! (' + currentResults.percentage.toFixed(1) + '% selected)</span>';
+                    document.getElementById('status-message').style.display = 'none';
                     document.getElementById('completion-message').style.display = 'block';
+                    document.getElementById('confirmation-code-display').textContent = confirmationCode;
                     
                     taskCompleted = true;
                     
@@ -262,6 +305,53 @@
                     
                     taskCompleted = false;
                 }
+            }
+        });
+        
+        // Validate confirmation code on input
+        $('#confirmation').on('input', function() {
+            const enteredCode = $(this).val().trim();
+            const submitButton = $('#submit-button');
+            const submitError = $('#submit-error');
+            
+            if (taskCompleted && confirmationCode && enteredCode === confirmationCode) {
+                submitButton.prop('disabled', false);
+                submitError.hide();
+            } else {
+                submitButton.prop('disabled', true);
+                
+                if (enteredCode && !taskCompleted) {
+                    submitError.text('Please complete the task first to receive a confirmation code.').show();
+                } else if (enteredCode && taskCompleted && enteredCode !== confirmationCode) {
+                    submitError.text('Invalid confirmation code. Please enter the exact code shown above.').show();
+                } else {
+                    submitError.hide();
+                }
+            }
+        });
+        
+        // Handle form submission
+        $('#submit-button').on('click', function(e) {
+            e.preventDefault();
+            
+            const enteredCode = $('#confirmation').val().trim();
+            
+            if (!taskCompleted) {
+                alert('Please complete the task before submitting.');
+                return false;
+            }
+            
+            if (enteredCode !== confirmationCode) {
+                alert('Invalid confirmation code. Please enter the correct code.');
+                return false;
+            }
+            
+            // If we're in AMT environment, submit the form
+            if (typeof submitForm === 'function') {
+                submitForm();
+            } else {
+                // For testing
+                alert('Form would be submitted with code: ' + confirmationCode);
             }
         });
     });
