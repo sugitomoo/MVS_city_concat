@@ -11,7 +11,6 @@ let cityInfo = {};
 let currentPlayingSegment = null;
 let hasWatchedEntireVideo = false; // Track if user has watched the entire video
 let hasUsedPreview = false; // Track if user has used the preview feature
-let hasSavedResults = false; // Track if results have been saved
 
 // Preview state
 let previewState = {
@@ -537,17 +536,6 @@ function toggleSegment(segmentId) {
         selectedDuration += segment.duration;
     }
     
-    // If selections changed after saving, mark as not saved
-    if (hasSavedResults) {
-        hasSavedResults = false;
-        // Hide save confirmation message if it's showing
-        const saveButton = document.getElementById('save-btn-bottom');
-        if (saveButton) {
-            saveButton.textContent = 'Save Results';
-            saveButton.style.background = '#28a745';
-        }
-    }
-    
     // If selections changed, reset preview state
     if (previewState.isPaused) {
         previewState.isPaused = false;
@@ -671,22 +659,6 @@ function saveResults() {
     };
     
     console.log('Saving results:', results);
-    
-    // Mark as saved
-    hasSavedResults = true;
-    
-    // Update save button to show confirmation
-    const saveButton = document.getElementById('save-btn-bottom');
-    if (saveButton) {
-        saveButton.textContent = '✓ Results Saved!';
-        saveButton.style.background = '#5cb85c';
-        
-        // Flash animation
-        saveButton.style.transform = 'scale(1.1)';
-        setTimeout(() => {
-            saveButton.style.transform = 'scale(1)';
-        }, 200);
-    }
     
     if (cityInfo.mode === 'amt') {
         window.parent.postMessage({
