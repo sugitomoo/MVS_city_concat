@@ -266,11 +266,6 @@ function stopPreview() {
     
     // Re-highlight current segment if video is still playing
     highlightCurrentSegment();
-    
-    // Show save button if video has been watched and preview has been used
-    if (hasWatchedEntireVideo && hasUsedPreview) {
-        showSaveButton();
-    }
 }
 
 function finishPreview() {
