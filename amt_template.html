@@ -97,6 +97,42 @@
             height: 1100px; /* 縦並びレイアウト用に高さを増やす */
         }
     }
+    
+    .confirmation-box {
+        background: #e8f5e9;
+        border: 2px solid #4CAF50;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .percentage-display {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2e7d32;
+        text-align: center;
+        margin: 15px 0;
+    }
+    
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    
+    .checkbox-container input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+    
+    .checkbox-container label {
+        font-size: 16px;
+        font-weight: normal;
+        margin: 0;
+        cursor: pointer;
+    }
 
 </style>
 
@@ -156,7 +192,7 @@
                     <li><strong>When duplicate content appears, remove the segments with relatively lower importance. However, if adjacent segments contain similar content, you may keep both.</strong></li>
                     <li>Monitor the percentage indicator to ensure your selection is between 5% and 15%.</li>
                     <li>After using the preview function, the "Save Results" button will appear. Press it to save your selections.</li>
-                    <li>After seeing "Selection saved!" message, type "DONE" in the confirmation field and click Submit.</li>
+                    <li>After seeing "Selection saved!" message, check the confirmation checkbox and click Submit.</li>
                 </ol>
             </div>
         </div>
@@ -183,13 +219,28 @@
         <input type="hidden" name="area" value="${area}" />
         <input type="hidden" name="place" value="${place}" />
         <input type="hidden" name="task_completed" id="task-completed-input" value="false" />
+        <input type="hidden" name="percentage_confirmed" id="percentage-confirmed-input" value="false" />
         
-        <!-- Input from Worker - Hidden until task is completed -->
-        <div class="form-group" id="submission-section" style="display: none; margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 8px;">
-            <label for="confirmation">Type "DONE" to confirm task completion:</label>
-            <input class="form-control" id="confirmation" name="confirmation" placeholder="Type DONE here" required="" type="text" />
+        <!-- Confirmation section - Hidden until task is completed -->
+        <div class="form-group confirmation-box" id="submission-section" style="display: none;">
+            <h4 style="text-align: center; color: #2e7d32; margin-bottom: 20px;">Task Completed Successfully!</h4>
+            
+            <div class="percentage-display">
+                Your selected segments: <span id="final-percentage">0%</span> of total video
+            </div>
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="confirmation-checkbox" name="confirmation_checkbox" required>
+                <label for="confirmation-checkbox">
+                    I confirm that my selected segments are between 5% and 15% of the total video duration
+                </label>
+            </div>
+            
+            <p style="text-align: center; color: #666; font-size: 14px; margin-top: 15px;">
+                Please check the box above to confirm your selection percentage before submitting.
+            </p>
         </div>
-        <!-- End input from Worker -->
+        <!-- End confirmation section -->
     </div>
 </section>
 
@@ -223,6 +274,7 @@
         // State management
         let currentResults = null;
         let taskCompleted = false;
+        let savedPercentage = 0;
         
         // Listen for messages from iframe
         window.addEventListener('message', function(event) {
@@ -231,6 +283,7 @@
             
             if (event.data.type === 'results-saved') {
                 currentResults = event.data.results;
+                savedPercentage = currentResults.percentage;
                 
                 // Check if percentage is within 5-15% range
                 if (currentResults.percentage >= 5 && currentResults.percentage <= 15) {
@@ -242,6 +295,9 @@
                     document.getElementById('status-message').style.display = 'none';
                     document.getElementById('completion-message').style.display = 'block';
                     
+                    // Update percentage display
+                    document.getElementById('final-percentage').textContent = currentResults.percentage.toFixed(1) + '%';
+                    
                     taskCompleted = true;
                     
                     // Show submission section
@@ -249,9 +305,6 @@
                     
                     // Scroll to the form area
                     document.getElementById('submission-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
-                    // Focus on confirmation input
-                    document.getElementById('confirmation').focus();
                     
                 } else {
                     document.getElementById('status-message').innerHTML =
@@ -266,8 +319,17 @@
                     
                     taskCompleted = false;
                     document.getElementById('task-completed-input').value = 'false';
+                    
+                    // Hide confirmation section if percentage is out of range
+                    document.getElementById('submission-section').style.display = 'none';
                 }
             }
+        });
+        
+        // Handle checkbox change
+        $('#confirmation-checkbox').on('change', function() {
+            const isChecked = $(this).is(':checked');
+            $('#percentage-confirmed-input').val(isChecked ? 'true' : 'false');
         });
         
         // Prevent form submission if task not completed
@@ -278,10 +340,17 @@
                 return false;
             }
             
-            const confirmText = $('#confirmation').val().trim().toUpperCase();
-            if (confirmText !== 'DONE') {
+            const isConfirmed = $('#confirmation-checkbox').is(':checked');
+            if (!isConfirmed) {
                 e.preventDefault();
-                alert('Please type "DONE" in the confirmation field after saving your results.');
+                alert('Please check the confirmation box to confirm that your selection is between 5% and 15% of the total video duration.');
+                return false;
+            }
+            
+            // Double check the percentage one more time
+            if (savedPercentage < 5 || savedPercentage > 15) {
+                e.preventDefault();
+                alert('Error: Your selection is not within the required 5-15% range. Please adjust your selection.');
                 return false;
             }
             
