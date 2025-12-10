@@ -1,6 +1,6 @@
 // Global configuration
 const S3_BASE_URL = 'https://multivideosummarization-city.s3.us-east-1.amazonaws.com/';
-const SEGMENTS_DATA_URL = 'https://sugitomoo.github.io/MVS_city_concat/data/segments/';
+const SEGMENTS_DATA_URL = 'https://sugitomoo.github.io/MVS_city_concat/data/segments_div20/';
 
 // Global state
 let segmentData = [];
